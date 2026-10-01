@@ -31,6 +31,19 @@ nav button{background:none;border:0;color:#777;border-radius:0;margin:0;padding:
 .small{font-size:11px;color:#777}
 @media(min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}}
 </style>
+
+<style id="vincerius-fix-add-button">
+/* Keep the dashboard clear: the floating add-job button is removed. */
+button[aria-label*="zakázku" i],
+button[title*="zakázku" i],
+.fab,
+.floating-action-button,
+.add-job-fab,
+#add-job-fab {
+  display: none !important;
+}
+</style>
+
 </head>
 <body>
 <header>
@@ -119,4 +132,14 @@ function clearAll(){if(confirm('Smazat všechna lokální data Vincerius?')){loc
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 dashboard();renderHistory();renderFin();calculate();
 </script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js", {scope: "./"})
+      .catch(err => console.log("Service worker registration failed:", err));
+  });
+}
+</script>
+
 </body></html>
