@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Vincerius</title>
+<style>
+:root{--bg:#050505;--panel:#0d0d0f;--panel2:#151517;--red:#ef1717;--red2:#ff3030;--text:#f5f5f5;--muted:#9a9a9f;--line:#29292d;--green:#42d17a;--amber:#e9a72b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -10%,#260707 0,#050505 35%);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:82px}
+header{height:72px;border-bottom:1px solid #171719;background:#050505ee;backdrop-filter:blur(12px);position:sticky;top:0;z-index:20;display:flex;align-items:center;padding:8px 16px;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px}.brand img{width:43px;height:43px;object-fit:cover;border-radius:50%;border:1px solid #5e1111}.brand span{font-family:Georgia,serif;letter-spacing:5px;color:#ff2929;font-size:18px}
+.iconbtn{width:42px;height:42px;border:1px solid #333;background:#0d0d0f;color:#fff;border-radius:12px}
+.wrap{max-width:760px;margin:auto;padding:16px}.page{display:none}.page.active{display:block}
+h1{font-size:28px;margin:5px 0 14px}h2{font-size:19px;margin:0 0 13px}.muted{color:var(--muted);font-size:13px}
+.card{background:linear-gradient(145deg,#121214,#0a0a0b);border:1px solid var(--line);border-radius:17px;padding:15px;margin:12px 0;box-shadow:0 12px 30px #0008}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#101012;border:1px solid #242428;border-radius:13px;padding:13px}.stat b{display:block;font-size:21px;margin-top:3px}.positive{color:var(--green)}.negative{color:#ff5353}
+.sectionhead{display:flex;justify-content:space-between;align-items:center}.link{color:#ff3b3b;background:none;border:0;width:auto;padding:0}
+.row{display:flex;align-items:center;gap:11px}.grow{flex:1}.job{display:flex;align-items:center;gap:11px;padding:12px 0;border-top:1px solid #242427}.job:first-child{border-top:0}.jobicon{width:39px;height:39px;border:1px solid #3a3a3d;border-radius:11px;display:grid;place-items:center;color:#ff3737;background:#130707}.jobname{font-weight:700}.jobmeta{font-size:12px;color:#888}.amount{font-weight:800;white-space:nowrap}.badge{font-size:11px;padding:4px 7px;border-radius:99px;border:1px solid #315c42;color:#73e39a;background:#0c2015}.badge.partial{color:#f1bf55;border-color:#6d4f1b;background:#241a08}.badge.offer{color:#bbb;border-color:#444;background:#171717}
+label{display:block;color:#ddd;font-size:13px;font-weight:650;margin:10px 0 5px}input,select,textarea{width:100%;background:#0b0b0d;color:#eee;border:1px solid #333;border-radius:11px;padding:11px;font:inherit}textarea{min-height:80px}
+button{background:linear-gradient(180deg,#f12626,#bc0909);color:#fff;border:1px solid #ff4545;border-radius:11px;padding:11px;font:inherit;font-weight:750;width:100%;margin-top:9px}.secondary{background:#171719;border-color:#333;color:#eee}.danger{background:#3b0909;border-color:#701414}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.result{font-size:29px;font-weight:850;margin:14px 0;color:#ff3b3b}
+.search{display:flex;gap:8px}.search input{flex:1}.search button{width:48px;margin:0}
+.detailHero{border-left:3px solid var(--red);padding-left:12px}.big{font-size:27px;font-weight:850}.timeline{border-left:1px solid #3b3b3e;margin:14px 0 5px 7px;padding-left:18px}.tl{position:relative;padding:5px 0 13px;color:#ccc}.tl:before{content:"";position:absolute;left:-23px;top:10px;width:8px;height:8px;background:var(--red);border-radius:50%;box-shadow:0 0 12px #f22}
+.filters{display:flex;gap:7px;overflow:auto;margin:10px 0}.filters button{white-space:nowrap;width:auto;margin:0;background:#111;color:#bbb;border-color:#333;padding:8px 11px}.filters button.sel{background:#310909;color:#ff5555;border-color:#8b1b1b}
+nav{position:fixed;bottom:0;left:0;right:0;height:74px;background:#080809f5;border-top:1px solid #29292c;backdrop-filter:blur(12px);display:grid;grid-template-columns:repeat(5,1fr);z-index:30}
+nav button{background:none;border:0;color:#777;border-radius:0;margin:0;padding:7px 2px;font-size:11px}.navicon{font-size:19px;display:block;margin-bottom:2px}nav button.active{color:#ff3434}
+.fab{position:absolute!important;left:50%;transform:translateX(-50%);top:-23px;width:56px!important;height:56px;border-radius:50%!important;font-size:25px;padding:0!important;box-shadow:0 0 22px #e11a1a99}
+.check{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #222}.check input{width:auto}
+.small{font-size:11px;color:#777}
+@media(min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<div class="brand"><img src="vincerius-logo.png" alt=""><span>VINCERIUS</span></div>
+<button class="iconbtn" onclick="alert('Oznámení zatím nejsou připojena.')">♧</button>
+</header>
+
+<main class="wrap">
+<section id="home" class="page active">
+<h1>Přehled</h1>
+<div class="card"><div class="sectionhead"><span class="muted">Tento měsíc</span><select id="period" style="width:auto;padding:6px 8px"><option>Tento měsíc</option><option>Minulý měsíc</option></select></div><div class="stats" style="margin-top:12px">
+<div class="stat"><span class="muted">Zakázky</span><b id="sJobs">0</b><span class="small positive">aktivity</span></div>
+<div class="stat"><span class="muted">Příjmy</span><b id="sIncome">0 Kč</b></div>
+<div class="stat"><span class="muted">Náklady</span><b id="sCosts">0 Kč</b></div>
+<div class="stat"><span class="muted">Rozdíl</span><b id="sProfit">0 Kč</b></div>
+</div></div>
+<div class="card"><div class="sectionhead"><h2>Nedávné zakázky</h2><button class="link" onclick="show('history')">Zobrazit vše</button></div><div id="recent"></div></div>
+<div class="card"><h2>Rychlá akce</h2><button onclick="show('newjob')">＋ Nová zakázka</button><button class="secondary" onclick="show('calc')">🧮 Spočítat nabídku</button></div>
+</section>
+
+<section id="history" class="page">
+<div class="sectionhead"><h1>Historie zakázek</h1><span class="muted" id="histCount">0</span></div>
+<div class="search"><input id="search" placeholder="Hledat zakázku..." oninput="renderHistory()"><button onclick="document.getElementById('search').value='';renderHistory()">×</button></div>
+<div class="filters"><button class="sel" onclick="filterHist('Vše',this)">Vše</button><button onclick="filterHist('Zaplaceno',this)">Zaplaceno</button><button onclick="filterHist('Hotovo',this)">Hotovo</button><button onclick="filterHist('Domluveno',this)">Domluveno</button></div>
+<div class="card"><div id="historyList"></div></div>
+</section>
+
+<section id="jobdetail" class="page"><button class="secondary" onclick="show('history')">← Zpět do historie</button><div id="detail"></div></section>
+
+<section id="newjob" class="page">
+<h1>Nová zakázka</h1><div class="card">
+<label>Název zakázky</label><input id="jn" placeholder="Např. Rodinný dům – Novákovi">
+<div class="grid"><div><label>Cena Kč</label><input id="ja" type="number" min="0"></div><div><label>Stav</label><select id="js"><option>Nabídka</option><option>Domluveno</option><option>Hotovo</option><option>Zaplaceno</option></select></div></div>
+<label>Zákazník / lokalita</label><input id="jc" placeholder="Jen údaje potřebné pro práci">
+<label>Rozsah práce</label><textarea id="jnote" placeholder="Počet oken, strany, rámy, poznámky..."></textarea>
+<div class="grid"><div><label>Odhad času (min)</label><input id="jtime" type="number" min="0"></div><div><label>Přímé náklady Kč</label><input id="jcost" type="number" min="0"></div></div>
+<button onclick="saveJob()">Uložit zakázku</button></div>
+</section>
+
+<section id="calc" class="page"><h1>Kalkulátor</h1><div class="card">
+<div class="grid"><div><label>Počet oken</label><input id="cw" type="number" value="8" min="0"></div><div><label>Kč / okno</label><input id="cp" type="number" value="80" min="0"></div></div>
+<div class="grid"><div><label>Rámy/parapety Kč</label><input id="cf" type="number" value="200" min="0"></div><div><label>Doprava Kč</label><input id="ct" type="number" value="80" min="0"></div></div>
+<div class="grid"><div><label>Materiál Kč</label><input id="cm" type="number" value="50" min="0"></div><div><label>Ostatní Kč</label><input id="co" type="number" value="0" min="0"></div></div>
+<label>Přirážka (%)</label><input id="margin" type="number" value="0" min="0">
+<button onclick="calculate()">Spočítat</button><div id="calcResult" class="result">— Kč</div><p id="calcDetail" class="muted"></p></div></section>
+
+<section id="finance" class="page"><h1>Finance</h1><div class="card">
+<div class="grid"><div><label>Typ</label><select id="ft"><option>Příjem</option><option>Náklad</option></select></div><div><label>Částka Kč</label><input id="fa" type="number" min="0"></div></div>
+<label>Popis</label><input id="fn" placeholder="Např. zaplacená zakázka / prostředek"><button onclick="saveFin()">Uložit</button></div>
+<div class="card"><h2>Evidence</h2><div id="finList"></div></div></section>
+
+<section id="safety" class="page"><h1>Bezpečnost</h1><div class="card"><p class="muted">Pracuj pouze z bezpečné pozice. Pokud některý bod nesplníš, zakázku nepřijímej bez posouzení dospělým.</p>
+<div class="check"><input type="checkbox">Bezpečný přístup a stabilní místo.</div><div class="check"><input type="checkbox">Bez střechy a nechráněné výšky.</div><div class="check"><input type="checkbox">Bez rizika elektrického vedení.</div><div class="check"><input type="checkbox">Bezpečné okolí, chodci a doprava.</div><div class="check"><input type="checkbox">Bez nebezpečně kluzkého povrchu.</div><div class="check"><input type="checkbox">Čisticí prostředky používám podle návodu.</div></div>
+<div class="card"><h2>Pravidla</h2><p>Je ti 14 let. Aplikace nepředpokládá, že můžeš samostatně podnikat nebo uzavírat smlouvy. Placenou činnost prober s rodičem/zákonným zástupcem a aktuální podmínky ověř u příslušných úřadů.</p></div>
+</section>
+
+<section id="menu" class="page"><h1>Menu</h1><div class="card"><h2>Data</h2><p class="muted">Záznamy jsou v této verzi uloženy lokálně v prohlížeči.</p><button class="secondary" onclick="exportCSV()">Exportovat zakázky do CSV</button><button class="danger" onclick="clearAll()">Smazat lokální data</button></div></section>
+</main>
+
+<nav>
+<button onclick="show('home')" data-p="home"><span class="navicon">⌂</span>Přehled</button>
+<button onclick="show('history')" data-p="history"><span class="navicon">◴</span>Zakázky</button>
+<button class="fab" onclick="show('newjob')">＋</button>
+<button onclick="show('finance')" data-p="finance"><span class="navicon">▣</span>Finance</button>
+<button onclick="show('menu')" data-p="menu"><span class="navicon">•••</span>Menu</button>
+</nav>
+
+<script>
+const $=id=>document.getElementById(id), num=id=>Number($(id).value)||0;
+let activeFilter='Vše';
+function get(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}}function put(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function show(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('nav button[data-p]').forEach(b=>b.classList.toggle('active',b.dataset.p===id));if(id==='home')dashboard();if(id==='history')renderHistory();if(id==='finance')renderFin()}
+function saveJob(){let a=get('v_jobs');a.unshift({id:Date.now(),name:$('jn').value||'Bez názvu',amount:num('ja'),status:$('js').value,customer:$('jc').value,note:$('jnote').value,time:num('jtime'),cost:num('jcost'),date:new Date().toLocaleDateString('cs-CZ')});put('v_jobs',a);['jn','ja','jc','jnote','jtime','jcost'].forEach(id=>$(id).value='');show('history')}
+function delJob(id){put('v_jobs',get('v_jobs').filter(x=>x.id!==id));show('history')}
+function filterHist(x,b){activeFilter=x;document.querySelectorAll('.filters button').forEach(y=>y.classList.remove('sel'));b.classList.add('sel');renderHistory()}
+function renderHistory(){let q=($('search').value||'').toLowerCase(),a=get('v_jobs').filter(x=>(activeFilter==='Vše'||x.status===activeFilter)&&(`${x.name} ${x.customer} ${x.note}`.toLowerCase().includes(q)));$('histCount').textContent=a.length+' zak.';$('historyList').innerHTML=a.length?a.map(jobHtml).join(''):'<p class="muted">Žádná zakázka neodpovídá filtru.</p>'}
+function jobHtml(x){let b=x.status==='Zaplaceno'?'badge':x.status==='Hotovo'?'badge':'badge partial';return `<div class="job" onclick="openJob(${x.id})"><div class="jobicon">◷</div><div class="grow"><div class="jobname">${esc(x.name)}</div><div class="jobmeta">${esc(x.date)}${x.customer?' · '+esc(x.customer):''}</div><span class="${b}">${esc(x.status)}</span></div><div class="amount">${x.amount.toLocaleString('cs-CZ')} Kč</div></div>`}
+function openJob(id){let x=get('v_jobs').find(j=>j.id===id);if(!x)return;$('detail').innerHTML=`<div class="card detailHero"><div class="muted">${esc(x.date)}</div><h1>${esc(x.name)}</h1><div class="big">${x.amount.toLocaleString('cs-CZ')} Kč</div><span class="badge">${esc(x.status)}</span></div><div class="card"><h2>Základní informace</h2><p><span class="muted">Zákazník / lokalita</span><br>${esc(x.customer)||'Neuvedeno'}</p><p><span class="muted">Rozsah práce</span><br>${esc(x.note)||'Neuvedeno'}</p><p><span class="muted">Odhad času</span><br>${x.time?x.time+' min':'Neuvedeno'}</p><p><span class="muted">Přímé náklady</span><br>${x.cost.toLocaleString('cs-CZ')} Kč</p></div><div class="card"><h2>Průběh zakázky</h2><div class="timeline"><div class="tl">Zakázka evidována · ${esc(x.date)}</div><div class="tl">Stav: ${esc(x.status)}</div></div><button class="danger" onclick="delJob(${x.id})">Smazat zakázku</button></div>`;show('jobdetail')}
+function calculate(){let base=num('cw')*num('cp')+num('cf')+num('ct')+num('cm')+num('co'),total=base*(1+num('margin')/100);$('calcResult').textContent=Math.round(total).toLocaleString('cs-CZ')+' Kč';$('calcDetail').textContent='Základ '+Math.round(base).toLocaleString('cs-CZ')+' Kč · přirážka '+num('margin')+' %. Výsledek je kalkulace, ne ověřená tržní cena.'}
+function saveFin(){let a=get('v_fin');a.unshift({type:$('ft').value,amount:num('fa'),name:$('fn').value||'Bez popisu',date:new Date().toLocaleDateString('cs-CZ')});put('v_fin',a);$('fa').value='';$('fn').value='';renderFin();dashboard()}
+function delFin(i){let a=get('v_fin');a.splice(i,1);put('v_fin',a);renderFin();dashboard()}
+function renderFin(){let a=get('v_fin');$('finList').innerHTML=a.length?a.map((x,i)=>`<div class="job"><div class="grow"><b>${esc(x.type)}</b><div class="jobmeta">${esc(x.name)} · ${esc(x.date)}</div></div><div class="amount">${x.amount.toLocaleString('cs-CZ')} Kč</div><button class="secondary" style="width:auto;margin:0" onclick="delFin(${i})">×</button></div>`).join(''):'<p class="muted">Zatím žádné položky.</p>'}
+function dashboard(){let j=get('v_jobs'),f=get('v_fin'),inc=f.filter(x=>x.type==='Příjem').reduce((s,x)=>s+x.amount,0)+j.filter(x=>x.status==='Zaplaceno').reduce((s,x)=>s+x.amount,0),cost=f.filter(x=>x.type==='Náklad').reduce((s,x)=>s+x.amount,0);$('sJobs').textContent=j.length;$('sIncome').textContent=inc.toLocaleString('cs-CZ')+' Kč';$('sCosts').textContent=cost.toLocaleString('cs-CZ')+' Kč';$('sProfit').textContent=(inc-cost).toLocaleString('cs-CZ')+' Kč';$('sProfit').className=(inc-cost)>=0?'positive':'';$('recent').innerHTML=j.slice(0,3).map(jobHtml).join('')||'<p class="muted">Zatím žádné zakázky.</p>'}
+function exportCSV(){let a=get('v_jobs'),csv='ID;Datum;Zakázka;Zákazník;Stav;Cena;Náklady;Čas;Poznámka\\n'+a.map(x=>[x.id,x.date,x.name,x.customer,x.status,x.amount,x.cost,x.time,x.note].map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(';')).join('\\n');let blob=new Blob(['\\ufeff'+csv],{type:'text/csv;charset=utf-8'}),u=URL.createObjectURL(blob),ael=document.createElement('a');ael.href=u;ael.download='vincerius-zakazky.csv';ael.click();URL.revokeObjectURL(u)}
+function clearAll(){if(confirm('Smazat všechna lokální data Vincerius?')){localStorage.clear();dashboard();renderHistory();renderFin()}}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+dashboard();renderHistory();renderFin();calculate();
+</script>
+</body></html>
