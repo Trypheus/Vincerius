@@ -44,10 +44,18 @@ button[title*="zakázku" i],
 }
 </style>
 
+
+<style id="vincerius-clean-header-logo">
+/* Clean header: hide the large logo graphic; keep the VINCERIUS title. */
+header img, .topbar img, .header img, .navbar img, .brand img, .logo img {
+  display: none !important;
+}
+</style>
+
 </head>
 <body>
 <header>
-<div class="brand"><img src="vincerius-logo.png" alt=""><span>VINCERIUS</span></div>
+<div class="brand"><span>VINCERIUS</span></div>
 <button class="iconbtn" onclick="alert('Oznámení zatím nejsou připojena.')">♧</button>
 </header>
 
