@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<link rel="manifest" href="vincerius-manifest-v18.webmanifest">
+<title>Vincerius V1.8</title>
+<meta name="application-version" content="1.8.0-clean-entry-20261002">
+<meta name="cache-control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<style>
+:root{--bg:#050505;--panel:#0d0d0f;--panel2:#151517;--red:#ef1717;--red2:#ff3030;--text:#f5f5f5;--muted:#9a9a9f;--line:#29292d;--green:#42d17a;--amber:#e9a72b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -10%,#260707 0,#050505 35%);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:82px}
+header{height:72px;border-bottom:1px solid #171719;background:#050505ee;backdrop-filter:blur(12px);position:sticky;top:0;z-index:20;display:flex;align-items:center;padding:8px 16px;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px}.brand img{width:43px;height:43px;object-fit:cover;border-radius:50%;border:1px solid #5e1111}.brand span{font-family:Georgia,serif;letter-spacing:5px;color:#ff2929;font-size:18px}
+.iconbtn{width:42px;height:42px;border:1px solid #333;background:#0d0d0f;color:#fff;border-radius:12px}
+.wrap{max-width:760px;margin:auto;padding:16px}.page{display:none}.page.active{display:block}
+h1{font-size:28px;margin:5px 0 14px}h2{font-size:19px;margin:0 0 13px}.muted{color:var(--muted);font-size:13px}
+.card{background:linear-gradient(145deg,#121214,#0a0a0b);border:1px solid var(--line);border-radius:17px;padding:15px;margin:12px 0;box-shadow:0 12px 30px #0008}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#101012;border:1px solid #242428;border-radius:13px;padding:13px}.stat b{display:block;font-size:21px;margin-top:3px}.positive{color:var(--green)}.negative{color:#ff5353}
+.sectionhead{display:flex;justify-content:space-between;align-items:center}.link{color:#ff3b3b;background:none;border:0;width:auto;padding:0}
+.row{display:flex;align-items:center;gap:11px}.grow{flex:1}.job{display:flex;align-items:center;gap:11px;padding:12px 0;border-top:1px solid #242427}.job:first-child{border-top:0}.jobicon{width:39px;height:39px;border:1px solid #3a3a3d;border-radius:11px;display:grid;place-items:center;color:#ff3737;background:#130707}.jobname{font-weight:700}.jobmeta{font-size:12px;color:#888}.amount{font-weight:800;white-space:nowrap}.badge{font-size:11px;padding:4px 7px;border-radius:99px;border:1px solid #315c42;color:#73e39a;background:#0c2015}.badge.partial{color:#f1bf55;border-color:#6d4f1b;background:#241a08}.badge.offer{color:#bbb;border-color:#444;background:#171717}
+label{display:block;color:#ddd;font-size:13px;font-weight:650;margin:10px 0 5px}input,select,textarea{width:100%;background:#0b0b0d;color:#eee;border:1px solid #333;border-radius:11px;padding:11px;font:inherit}textarea{min-height:80px}
+button{background:linear-gradient(180deg,#f12626,#bc0909);color:#fff;border:1px solid #ff4545;border-radius:11px;padding:11px;font:inherit;font-weight:750;width:100%;margin-top:9px}.secondary{background:#171719;border-color:#333;color:#eee}.danger{background:#3b0909;border-color:#701414}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.result{font-size:29px;font-weight:850;margin:14px 0;color:#ff3b3b}
+.search{display:flex;gap:8px}.search input{flex:1}.search button{width:48px;margin:0}
+.detailHero{border-left:3px solid var(--red);padding-left:12px}.big{font-size:27px;font-weight:850}.timeline{border-left:1px solid #3b3b3e;margin:14px 0 5px 7px;padding-left:18px}.tl{position:relative;padding:5px 0 13px;color:#ccc}.tl:before{content:"";position:absolute;left:-23px;top:10px;width:8px;height:8px;background:var(--red);border-radius:50%;box-shadow:0 0 12px #f22}
+.filters{display:flex;gap:7px;overflow:auto;margin:10px 0}.filters button{white-space:nowrap;width:auto;margin:0;background:#111;color:#bbb;border-color:#333;padding:8px 11px}.filters button.sel{background:#310909;color:#ff5555;border-color:#8b1b1b}
+nav{position:fixed;bottom:0;left:0;right:0;height:74px;background:#080809f5;border-top:1px solid #29292c;backdrop-filter:blur(12px);display:grid;grid-template-columns:repeat(5,1fr);z-index:30}
+nav button{background:none;border:0;color:#777;border-radius:0;margin:0;padding:7px 2px;font-size:11px}.navicon{font-size:19px;display:block;margin-bottom:2px}nav button.active{color:#ff3434}
+.fab{position:absolute!important;left:50%;transform:translateX(-50%);top:-23px;width:56px!important;height:56px;border-radius:50%!important;font-size:25px;padding:0!important;box-shadow:0 0 22px #e11a1a99}
+.check{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #222}.check input{width:auto}
+.small{font-size:11px;color:#777}
+@media(min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}}
+.price-row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #242427}.price-row:last-of-type{border-bottom:0}.price-row>div{flex:1}.price-row strong{white-space:nowrap;color:#ff3b3b;font-size:15px}.qty{display:grid;grid-template-columns:42px 1fr 42px;gap:7px}.qty input{text-align:center}.qtybtn{width:42px!important;height:44px;margin:0!important;padding:0!important;font-size:22px;background:#171719;border-color:#3a3a3d}
+.brand{display:flex!important;align-items:center!important;min-width:0!important}
+.brand img{display:block!important;width:52px!important;height:52px!important;object-fit:contain!important;border:0!important;border-radius:0!important;background:transparent!important}
+.price-row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #242427}
+.price-row:last-of-type{border-bottom:0}.price-row>div{flex:1;min-width:0}.price-row strong{white-space:nowrap;color:#ff3b3b;font-size:15px}
+.qty{display:grid;grid-template-columns:42px 1fr 42px;gap:7px}.qty input{text-align:center}
+.qtybtn{width:42px!important;height:44px;margin:0!important;padding:0!important;font-size:22px;background:#171719;border-color:#3a3a3d}
+
+.brand img{width:58px!important;height:58px!important;object-fit:contain!important;background:#050505!important;border-radius:10px!important}
+.app-version{position:fixed;right:8px;top:8px;font-size:9px;color:#666;z-index:9999;letter-spacing:.5px}</style>
+
+<style id="vincerius-fix-add-button">
+/* Keep the dashboard clear: the floating add-job button is removed. */
+button[aria-label*="zakázku" i],
+button[title*="zakázku" i],
+.fab,
+.floating-action-button,
+.add-job-fab,
+#add-job-fab {
+  display: none !important;
+}
+</style>
+
+
+
+<style id="vincerius-logo-v2">
+.brand{display:flex!important;align-items:center!important;gap:10px!important;min-width:0!important}
+.brand img{display:block!important;width:48px!important;height:48px!important;object-fit:contain!important;object-position:center!important;border:0!important;border-radius:0!important;background:#000!important;flex:0 0 48px!important}
+.brand span{display:block!important;font-size:18px!important;letter-spacing:4px!important;white-space:nowrap!important}
+</style>
+
+</head>
+<body><div class="app-version">V1.8</div>
+<header>
+<div class="brand"><img src="./vincerius-helmet-v18-20261002.png" alt="Vincerius"></div>
+<button class="iconbtn" onclick="alert('Oznámení zatím nejsou připojena.')">♧</button>
+</header>
+
+<main class="wrap">
+<section id="home" class="page active">
+<h1>Přehled</h1>
+<div class="card"><div class="sectionhead"><span class="muted">Tento měsíc</span><select id="period" style="width:auto;padding:6px 8px"><option>Tento měsíc</option><option>Minulý měsíc</option></select></div><div class="stats" style="margin-top:12px">
+<div class="stat"><span class="muted">Zakázky</span><b id="sJobs">0</b><span class="small positive">aktivity</span></div>
+<div class="stat"><span class="muted">Příjmy</span><b id="sIncome">0 Kč</b></div>
+<div class="stat"><span class="muted">Náklady</span><b id="sCosts">0 Kč</b></div>
+<div class="stat"><span class="muted">Rozdíl</span><b id="sProfit">0 Kč</b></div>
+</div></div>
+<div class="card"><div class="sectionhead"><h2>Nedávné zakázky</h2><button class="link" onclick="show('history')">Zobrazit vše</button></div><div id="recent"></div></div>
+<div class="card"><h2>Rychlá akce</h2><button onclick="show('newjob')">＋ Nová zakázka</button></div>
+</section>
+
+<section id="history" class="page">
+<div class="sectionhead"><h1>Historie zakázek</h1><span class="muted" id="histCount">0</span></div>
+<div class="search"><input id="search" placeholder="Hledat zakázku..." oninput="renderHistory()"><button onclick="document.getElementById('search').value='';renderHistory()">×</button></div>
+<div class="filters"><button class="sel" onclick="filterHist('Vše',this)">Vše</button><button onclick="filterHist('Zaplaceno',this)">Zaplaceno</button><button onclick="filterHist('Hotovo',this)">Hotovo</button><button onclick="filterHist('Domluveno',this)">Domluveno</button></div>
+<div class="card"><div id="historyList"></div></div>
+</section>
+
+<section id="jobdetail" class="page"><button class="secondary" onclick="show('history')">← Zpět do historie</button><div id="detail"></div></section>
+
+<section id="newjob" class="page">
+<h1>Nová zakázka</h1><div class="card">
+<label>Název zakázky</label><input id="jn" placeholder="Např. Rodinný dům – Novákovi">
+<div class="grid"><div><label>Cena Kč</label><input id="ja" type="number" min="0"></div><div><label>Stav</label><select id="js"><option>Nabídka</option><option>Domluveno</option><option>Hotovo</option><option>Zaplaceno</option></select></div></div>
+<label>Zákazník / lokalita</label><input id="jc" placeholder="Jen údaje potřebné pro práci">
+<label>Rozsah práce</label><textarea id="jnote" placeholder="Počet oken, strany, rámy, poznámky..."></textarea>
+<div class="grid"><div><label>Odhad času (min)</label><input id="jtime" type="number" min="0"></div><div><label>Přímé náklady Kč</label><input id="jcost" type="number" min="0"></div></div>
+<div class="card calc-inline">
+<h2>Kalkulace ceny</h2>
+<p class="muted">Cena se počítá podle velikosti a počtu oken.</p>
+<div class="price-row"><div><label>Malá okna · 50 Kč / ks</label><div class="qty"><button type="button" class="qtybtn" onclick="changeQty('cSmall',-1)">−</button><input id="cSmall" type="number" value="0" min="0" inputmode="numeric" oninput="calculate()"><button type="button" class="qtybtn" onclick="changeQty('cSmall',1)">+</button></div></div><strong id="smallTotal">0 Kč</strong></div>
+<div class="price-row"><div><label>Střední okna · 85 Kč / ks</label><div class="qty"><button type="button" class="qtybtn" onclick="changeQty('cMedium',-1)">−</button><input id="cMedium" type="number" value="0" min="0" inputmode="numeric" oninput="calculate()"><button type="button" class="qtybtn" onclick="changeQty('cMedium',1)">+</button></div></div><strong id="mediumTotal">0 Kč</strong></div>
+<div class="price-row"><div><label>Velká / francouzská okna · 150 Kč / ks</label><div class="qty"><button type="button" class="qtybtn" onclick="changeQty('cLarge',-1)">−</button><input id="cLarge" type="number" value="0" min="0" inputmode="numeric" oninput="calculate()"><button type="button" class="qtybtn" onclick="changeQty('cLarge',1)">+</button></div></div><strong id="largeTotal">0 Kč</strong></div>
+<div class="result" id="calcResult">0 Kč</div>
+<p id="calcDetail" class="muted">0 malých · 0 středních · 0 velkých/francouzských</p>
+<button type="button" onclick="useCalcPrice()">Přenést cenu do zakázky</button>
+<button type="button" class="secondary" onclick="resetCalc()">Vynulovat kalkulaci</button>
+</div>
+<button onclick="saveJob()">Uložit zakázku</button></div>
+</section>
+
+
+<section id="finance" class="page"><h1>Finance</h1><div class="card">
+<div class="grid"><div><label>Typ</label><select id="ft"><option>Příjem</option><option>Náklad</option></select></div><div><label>Částka Kč</label><input id="fa" type="number" min="0"></div></div>
+<label>Popis</label><input id="fn" placeholder="Např. zaplacená zakázka / prostředek"><button onclick="saveFin()">Uložit</button></div>
+<div class="card"><h2>Evidence</h2><div id="finList"></div></div></section>
+
+<section id="safety" class="page"><h1>Bezpečnost</h1><div class="card"><p class="muted">Pracuj pouze z bezpečné pozice. Pokud některý bod nesplníš, zakázku nepřijímej bez posouzení dospělým.</p>
+<div class="check"><input type="checkbox">Bezpečný přístup a stabilní místo.</div><div class="check"><input type="checkbox">Bez střechy a nechráněné výšky.</div><div class="check"><input type="checkbox">Bez rizika elektrického vedení.</div><div class="check"><input type="checkbox">Bezpečné okolí, chodci a doprava.</div><div class="check"><input type="checkbox">Bez nebezpečně kluzkého povrchu.</div><div class="check"><input type="checkbox">Čisticí prostředky používám podle návodu.</div></div>
+<div class="card"><h2>Pravidla</h2><p>Je ti 14 let. Aplikace nepředpokládá, že můžeš samostatně podnikat nebo uzavírat smlouvy. Placenou činnost prober s rodičem/zákonným zástupcem a aktuální podmínky ověř u příslušných úřadů.</p></div>
+</section>
+
+<section id="menu" class="page"><h1>Menu</h1><div class="card"><h2>Data</h2><p class="muted">Záznamy jsou v této verzi uloženy lokálně v prohlížeči.</p><button class="secondary" onclick="exportCSV()">Exportovat zakázky do CSV</button><button class="danger" onclick="clearAll()">Smazat lokální data</button></div></section>
+</main>
+
+<nav>
+<button onclick="show('home')" data-p="home"><span class="navicon">⌂</span>Přehled</button>
+<button onclick="show('history')" data-p="history"><span class="navicon">◴</span>Zakázky</button>
+<button class="fab" onclick="show('newjob')">＋</button>
+<button onclick="show(\'calc\')">🧮<span>Kalkulačka</span></button>
+\1<span class="navicon">▣</span>Finance</button>
+<button onclick="show('menu')" data-p="menu"><span class="navicon">•••</span>Menu</button>
+</nav>
+
+
+<section id="calc" class="page">
+  <h1>Kalkulačka</h1>
+  <div class="card">
+    <p class="muted">Rychlý výpočet ceny podle počtu a velikosti oken.</p>
+    <div class="price-row">
+      <div><label>Malá okna · 50 Kč / ks</label>
+        <div class="qty"><button type="button" class="qtybtn" onclick="changeQty('cSmall',-1)">−</button><input id="cSmall" type="number" value="0" min="0" inputmode="numeric" oninput="calculate()"><button type="button" class="qtybtn" onclick="changeQty('cSmall',1)">+</button></div>
+      </div><strong id="smallTotal">0 Kč</strong>
+    </div>
+    <div class="price-row">
+      <div><label>Střední okna · 85 Kč / ks</label>
+        <div class="qty"><button type="button" class="qtybtn" onclick="changeQty('cMedium',-1)">−</button><input id="cMedium" type="number" value="0" min="0" inputmode="numeric" oninput="calculate()"><button type="button" class="qtybtn" onclick="changeQty('cMedium',1)">+</button></div>
+      </div><strong id="mediumTotal">0 Kč</strong>
+    </div>
+    <div class="price-row">
+      <div><label>Velká / francouzská okna · 150 Kč / ks</label>
+        <div class="qty"><button type="button" class="qtybtn" onclick="changeQty('cLarge',-1)">−</button><input id="cLarge" type="number" value="0" min="0" inputmode="numeric" oninput="calculate()"><button type="button" class="qtybtn" onclick="changeQty('cLarge',1)">+</button></div>
+      </div><strong id="largeTotal">0 Kč</strong>
+    </div>
+    <div class="result" id="calcResult">0 Kč</div>
+    <p id="calcDetail" class="muted">0 malých · 0 středních · 0 velkých/francouzských</p>
+    <button type="button" onclick="useCalcPriceFromStandalone()">Použít jako cenu nové zakázky</button>
+    <button type="button" class="secondary" onclick="resetCalc()">Vynulovat kalkulaci</button>
+  </div>
+</section>
+
+
+<div style="position:fixed;bottom:86px;right:10px;font-size:11px;color:#666;z-index:30">V1.7</div>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("vincerius-sw-v18.js?v=17",{scope:"./"}).catch(()=>{}));}</script>
+</body></html>
