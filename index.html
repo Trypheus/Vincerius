@@ -19,8 +19,8 @@ h1{font-size:26px;margin:4px 0 18px}h2{font-size:19px;margin:22px 0 10px}.muted{
 input,select,textarea{width:100%;background:#0e0e0e;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:11px;margin-top:6px}textarea{min-height:80px;resize:vertical}label{display:block;margin:11px 0;color:#ddd;font-size:13px}
 .job{margin:9px 0}.job strong{display:block}.pill{font-size:11px;padding:5px 8px;border-radius:99px;background:#242424}.pill.green{color:#7ef0a5}.pill.yellow{color:#ffd66b}.pill.red{color:#ff8d8d}
 table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:10px 6px;border-bottom:1px solid var(--line)}
-nav{position:fixed;bottom:0;left:0;right:0;background:#0b0b0bee;border-top:1px solid var(--line);display:flex;justify-content:center;gap:2px;padding:8px env(safe-area-inset-right) calc(8px + env(safe-area-inset-bottom)) env(safe-area-inset-left);z-index:10}
-nav button{background:none;border:0;color:#aaa;padding:7px 9px;font-size:11px;border-radius:10px}nav button.active{color:#fff;background:#1d1d1d}
+nav{position:fixed;bottom:0;left:0;right:0;background:#0b0b0bee;border-top:1px solid var(--line);display:flex;justify-content:space-around;gap:2px;padding:8px env(safe-area-inset-right) calc(8px + env(safe-area-inset-bottom)) env(safe-area-inset-left);z-index:10}
+nav button{background:none;border:0;color:#aaa;padding:7px 9px;font-size:12px;border-radius:10px;min-width:22%;}nav button.active{color:#fff;background:#1d1d1d}
 .calcrow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin:8px 0}.num{font-weight:800;min-width:30px;text-align:center}
 .small{font-size:12px;color:var(--muted)}.empty{padding:25px;text-align:center;color:var(--muted)}
 @media(min-width:650px){.grid{grid-template-columns:repeat(4,1fr)}}
@@ -69,7 +69,14 @@ nav button{background:none;border:0;color:#aaa;padding:7px 9px;font-size:11px;bo
 <section id="equipment" class="page"><h1>Vybavení</h1><div id="equipmentList"></div></section>
 
 <section id="legal" class="page"><h1>Právní kontrola</h1><div class="card"><p><b>Kontrolní upozornění</b></p><p class="muted">Některé podnikatelské, daňové, smluvní a živnostenské kroky mohou u nezletilé osoby vyžadovat řešení s rodičem nebo zákonným zástupcem. Aktuální česká pravidla vždy ověřuj u rodiče/zákonného zástupce a u příslušného úřadu. Vincerius nenahrazuje právní ani daňové poradenství.</p><ul><li>Ověřit, zda lze konkrétní činnost provozovat a za jakých podmínek.</li><li>Ověřit povinnosti k příjmům, evidenci a daním.</li><li>U smluv a významných objednávek zapojit rodiče/zákonného zástupce.</li><li>Nezadávat do aplikace zbytečné osobní údaje.</li></ul></div></section>
-</main>
+<section id="menu" class="page"><h1>Menu</h1><div class="grid">
+<button class="card" style="text-align:left;color:inherit" onclick="show('customers')"><b>👥 Zákazníci</b><div class="small">Seznam a historie zákazníků</div></button>
+<button class="card" style="text-align:left;color:inherit" onclick="show('calendar')"><b>📅 Kalendář</b><div class="small">Přehled termínů</div></button>
+<button class="card" style="text-align:left;color:inherit" onclick="show('calc')"><b>🧮 Kalkulačka</b><div class="small">50 / 85 / 150 Kč</div></button>
+<button class="card" style="text-align:left;color:inherit" onclick="show('offers')"><b>📄 Nabídky</b><div class="small">Cenové nabídky</div></button>
+<button class="card" style="text-align:left;color:inherit" onclick="show('equipment')"><b>🛠️ Vybavení</b><div class="small">Stav vybavení</div></button>
+<button class="card" style="text-align:left;color:inherit" onclick="show('legal')"><b>⚖️ Právní kontrola</b><div class="small">Kontrolní upozornění</div></button>
+</div></section></main>
 <nav id="nav"></nav>
 <script>
 const KEY='vincerius_clean_v2';
@@ -87,7 +94,7 @@ function show(id){document.querySelectorAll('.page').forEach(x=>x.classList.remo
 function resetNew(full=true){if(full){['fCustomer','fPhone','fAddress','fNote'].forEach(id=>$(id).value='');counts.small=counts.medium=counts.large=0} $('fDate').value ||= new Date().toISOString().slice(0,10); ['small','medium','large'].forEach(k=>$(k+'N').textContent=counts[k]);updateTotals()}
 function saveJob(){let price=total(); if(!$('fCustomer').value.trim()){alert('Vyplň zákazníka.');return} data.jobs.push({id:Date.now(),customer:$('fCustomer').value.trim(),phone:$('fPhone').value.trim(),address:$('fAddress').value.trim(),date:$('fDate').value,time:$('fTime').value,price,status:$('fStatus').value,note:$('fNote').value,created:new Date().toISOString()});save();counts.small=counts.medium=counts.large=0;alert('Zakázka uložena.');show('jobs')}
 function render(){renderNav(); renderToday();renderJobs();renderCustomers();renderCalendar();renderFinance();renderExpenses();renderEquipment();renderOffers()}
-function renderNav(){let items=[['today','Dnes'],['jobs','Zakázky'],['customers','Zákazníci'],['calendar','Kalendář'],['finance','Finance'],['calc','Kalkulačka'],['offers','Nabídky'],['equipment','Vybavení'],['legal','Právo']];$('nav').innerHTML=items.map(x=>`<button data-page="${x[0]}" onclick="show('${x[0]}')">${x[1]}</button>`).join('')}
+function renderNav(){let items=[['today','⌂ Dnes'],['jobs','▣ Zakázky'],['finance','Kč Finance'],['menu','☰ Menu']];$('nav').innerHTML=items.map(x=>`<button data-page="${x[0]}" onclick="show('${x[0]}')">${x[1]}</button>`).join('')}
 function renderToday(){let today=new Date().toISOString().slice(0,10),j=data.jobs.filter(x=>x.date===today),done=j.filter(x=>x.status==='Hotová'||x.status==='Zaplacená');$('todayDate').textContent=new Date().toLocaleDateString('cs-CZ',{weekday:'long',day:'numeric',month:'long'});$('todayCount').textContent=j.length;$('todayRevenue').textContent=money(j.reduce((a,x)=>a+x.price,0));$('todayDone').textContent=done.length;$('todayWait').textContent=j.length-done.length;let next=j.filter(x=>x.status!=='Zaplacená').sort((a,b)=>(a.time||'99').localeCompare(b.time||'99'))[0];$('nextJob').innerHTML=next?`<div class="row"><div><strong>${esc(next.customer)}</strong><span class="small">${esc(next.time||'—')} · ${esc(next.address||'bez adresy')}</span></div><b>${money(next.price)}</b></div>`:'Žádná dnešní zakázka.'}
 function renderJobs(){let box=$('jobList');box.innerHTML=data.jobs.length?data.jobs.slice().sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time)).map(j=>`<div class="card job"><div class="row"><div><strong>${esc(j.customer)}</strong><span class="small">${esc(j.date)} · ${esc(j.time||'—')} · ${esc(j.address||'')}</span></div><b>${money(j.price)}</b></div><div class="actions" style="margin-top:9px"><span class="pill ${j.status==='Zaplacená'?'green':j.status==='Hotová'?'yellow':'red'}">${j.status}</span><button class="btn secondary" onclick="cycleStatus(${j.id})">Další stav</button></div></div>`).join(''):'<div class="empty">Zatím žádné zakázky.</div>'}
 function cycleStatus(id){let j=data.jobs.find(x=>x.id===id),s=['Nová','Domluvená','Hotová','Zaplacená'];j.status=s[(s.indexOf(j.status)+1)%s.length];save();render()}
@@ -102,6 +109,6 @@ function makeOffer(){let j=data.jobs.find(x=>x.id===$('offerJob').value);if(!j)r
 function useCalc(){let t=total('c');counts.small=Math.floor(0);show('new');/* cena zůstává řešena počty */alert('Kalkulace je připravena. V nové zakázce nastav počty oken podle kalkulace. Celkem: '+money(t))}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 $('fDate').value=new Date().toISOString().slice(0,10);render();updateTotals();
-if('serviceWorker' in navigator){navigator.serviceWorker.register('vincerius-sw-v2.js',{updateViaCache:'none'}).catch(()=>{})}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('vincerius-sw-v3.js',{updateViaCache:'none'}).catch(()=>{})}
 </script>
 </body></html>
