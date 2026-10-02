@@ -30,6 +30,15 @@ nav button{background:none;border:0;color:#777;border-radius:0;margin:0;padding:
 .check{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #222}.check input{width:auto}
 .small{font-size:11px;color:#777}
 @media(min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}}
+.price-row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #242427}.price-row:last-of-type{border-bottom:0}.price-row>div{flex:1}.price-row strong{white-space:nowrap;color:#ff3b3b;font-size:15px}.qty{display:grid;grid-template-columns:42px 1fr 42px;gap:7px}.qty input{text-align:center}.qtybtn{width:42px!important;height:44px;margin:0!important;padding:0!important;font-size:22px;background:#171719;border-color:#3a3a3d}
+.brand{display:flex!important;align-items:center!important;min-width:0!important}
+.brand img{display:block!important;width:52px!important;height:52px!important;object-fit:contain!important;border:0!important;border-radius:0!important;background:transparent!important}
+.price-row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #242427}
+.price-row:last-of-type{border-bottom:0}.price-row>div{flex:1;min-width:0}.price-row strong{white-space:nowrap;color:#ff3b3b;font-size:15px}
+.qty{display:grid;grid-template-columns:42px 1fr 42px;gap:7px}.qty input{text-align:center}
+.qtybtn{width:42px!important;height:44px;margin:0!important;padding:0!important;font-size:22px;background:#171719;border-color:#3a3a3d}
+
+.brand img{width:58px!important;height:58px!important;object-fit:contain!important;background:#050505!important;border-radius:10px!important}
 </style>
 
 <style id="vincerius-fix-add-button">
@@ -55,7 +64,7 @@ button[title*="zakázku" i],
 </head>
 <body>
 <header>
-<div class="brand"><img src="./vincerius-header-logo-v2.png" alt="Vincerius logo"><span>VINCERIUS</span></div>
+<div class="brand"><img src="./vincerius-logo.png" alt="Vincerius"></div>
 <button class="iconbtn" onclick="alert('Oznámení zatím nejsou připojena.')">♧</button>
 </header>
 
@@ -69,7 +78,7 @@ button[title*="zakázku" i],
 <div class="stat"><span class="muted">Rozdíl</span><b id="sProfit">0 Kč</b></div>
 </div></div>
 <div class="card"><div class="sectionhead"><h2>Nedávné zakázky</h2><button class="link" onclick="show('history')">Zobrazit vše</button></div><div id="recent"></div></div>
-<div class="card"><h2>Rychlá akce</h2><button onclick="show('newjob')">＋ Nová zakázka</button><button class="secondary" onclick="show('calc')">🧮 Spočítat nabídku</button></div>
+<div class="card"><h2>Rychlá akce</h2><button onclick="show('newjob')">＋ Nová zakázka</button></div>
 </section>
 
 <section id="history" class="page">
@@ -88,15 +97,20 @@ button[title*="zakázku" i],
 <label>Zákazník / lokalita</label><input id="jc" placeholder="Jen údaje potřebné pro práci">
 <label>Rozsah práce</label><textarea id="jnote" placeholder="Počet oken, strany, rámy, poznámky..."></textarea>
 <div class="grid"><div><label>Odhad času (min)</label><input id="jtime" type="number" min="0"></div><div><label>Přímé náklady Kč</label><input id="jcost" type="number" min="0"></div></div>
+<div class="card calc-inline">
+<h2>Kalkulace ceny</h2>
+<p class="muted">Cena se počítá podle velikosti a počtu oken.</p>
+<div class="price-row"><div><label>Malá okna · 50 Kč / ks</label><div class="qty"><button type="button" class="qtybtn" onclick="changeQty('cSmall',-1)">−</button><input id="cSmall" type="number" value="0" min="0" inputmode="numeric" oninput="calculate()"><button type="button" class="qtybtn" onclick="changeQty('cSmall',1)">+</button></div></div><strong id="smallTotal">0 Kč</strong></div>
+<div class="price-row"><div><label>Střední okna · 85 Kč / ks</label><div class="qty"><button type="button" class="qtybtn" onclick="changeQty('cMedium',-1)">−</button><input id="cMedium" type="number" value="0" min="0" inputmode="numeric" oninput="calculate()"><button type="button" class="qtybtn" onclick="changeQty('cMedium',1)">+</button></div></div><strong id="mediumTotal">0 Kč</strong></div>
+<div class="price-row"><div><label>Velká / francouzská okna · 150 Kč / ks</label><div class="qty"><button type="button" class="qtybtn" onclick="changeQty('cLarge',-1)">−</button><input id="cLarge" type="number" value="0" min="0" inputmode="numeric" oninput="calculate()"><button type="button" class="qtybtn" onclick="changeQty('cLarge',1)">+</button></div></div><strong id="largeTotal">0 Kč</strong></div>
+<div class="result" id="calcResult">0 Kč</div>
+<p id="calcDetail" class="muted">0 malých · 0 středních · 0 velkých/francouzských</p>
+<button type="button" onclick="useCalcPrice()">Přenést cenu do zakázky</button>
+<button type="button" class="secondary" onclick="resetCalc()">Vynulovat kalkulaci</button>
+</div>
 <button onclick="saveJob()">Uložit zakázku</button></div>
 </section>
 
-<section id="calc" class="page"><h1>Kalkulátor</h1><div class="card">
-<div class="grid"><div><label>Počet oken</label><input id="cw" type="number" value="8" min="0"></div><div><label>Kč / okno</label><input id="cp" type="number" value="80" min="0"></div></div>
-<div class="grid"><div><label>Rámy/parapety Kč</label><input id="cf" type="number" value="200" min="0"></div><div><label>Doprava Kč</label><input id="ct" type="number" value="80" min="0"></div></div>
-<div class="grid"><div><label>Materiál Kč</label><input id="cm" type="number" value="50" min="0"></div><div><label>Ostatní Kč</label><input id="co" type="number" value="0" min="0"></div></div>
-<label>Přirážka (%)</label><input id="margin" type="number" value="0" min="0">
-<button onclick="calculate()">Spočítat</button><div id="calcResult" class="result">— Kč</div><p id="calcDetail" class="muted"></p></div></section>
 
 <section id="finance" class="page"><h1>Finance</h1><div class="card">
 <div class="grid"><div><label>Typ</label><select id="ft"><option>Příjem</option><option>Náklad</option></select></div><div><label>Částka Kč</label><input id="fa" type="number" min="0"></div></div>
@@ -115,10 +129,37 @@ button[title*="zakázku" i],
 <button onclick="show('home')" data-p="home"><span class="navicon">⌂</span>Přehled</button>
 <button onclick="show('history')" data-p="history"><span class="navicon">◴</span>Zakázky</button>
 <button class="fab" onclick="show('newjob')">＋</button>
-<button onclick="show('finance')" data-p="finance"><span class="navicon">▣</span>Finance</button>
+<button onclick="show(\'calc\')">🧮<span>Kalkulačka</span></button>
+\1<span class="navicon">▣</span>Finance</button>
 <button onclick="show('menu')" data-p="menu"><span class="navicon">•••</span>Menu</button>
 </nav>
 
+
+<section id="calc" class="page">
+  <h1>Kalkulačka</h1>
+  <div class="card">
+    <p class="muted">Rychlý výpočet ceny podle počtu a velikosti oken.</p>
+    <div class="price-row">
+      <div><label>Malá okna · 50 Kč / ks</label>
+        <div class="qty"><button type="button" class="qtybtn" onclick="changeQty('cSmall',-1)">−</button><input id="cSmall" type="number" value="0" min="0" inputmode="numeric" oninput="calculate()"><button type="button" class="qtybtn" onclick="changeQty('cSmall',1)">+</button></div>
+      </div><strong id="smallTotal">0 Kč</strong>
+    </div>
+    <div class="price-row">
+      <div><label>Střední okna · 85 Kč / ks</label>
+        <div class="qty"><button type="button" class="qtybtn" onclick="changeQty('cMedium',-1)">−</button><input id="cMedium" type="number" value="0" min="0" inputmode="numeric" oninput="calculate()"><button type="button" class="qtybtn" onclick="changeQty('cMedium',1)">+</button></div>
+      </div><strong id="mediumTotal">0 Kč</strong>
+    </div>
+    <div class="price-row">
+      <div><label>Velká / francouzská okna · 150 Kč / ks</label>
+        <div class="qty"><button type="button" class="qtybtn" onclick="changeQty('cLarge',-1)">−</button><input id="cLarge" type="number" value="0" min="0" inputmode="numeric" oninput="calculate()"><button type="button" class="qtybtn" onclick="changeQty('cLarge',1)">+</button></div>
+      </div><strong id="largeTotal">0 Kč</strong>
+    </div>
+    <div class="result" id="calcResult">0 Kč</div>
+    <p id="calcDetail" class="muted">0 malých · 0 středních · 0 velkých/francouzských</p>
+    <button type="button" onclick="useCalcPriceFromStandalone()">Použít jako cenu nové zakázky</button>
+    <button type="button" class="secondary" onclick="resetCalc()">Vynulovat kalkulaci</button>
+  </div>
+</section>
 <script>
 const $=id=>document.getElementById(id), num=id=>Number($(id).value)||0;
 let activeFilter='Vše';
@@ -130,7 +171,19 @@ function filterHist(x,b){activeFilter=x;document.querySelectorAll('.filters butt
 function renderHistory(){let q=($('search').value||'').toLowerCase(),a=get('v_jobs').filter(x=>(activeFilter==='Vše'||x.status===activeFilter)&&(`${x.name} ${x.customer} ${x.note}`.toLowerCase().includes(q)));$('histCount').textContent=a.length+' zak.';$('historyList').innerHTML=a.length?a.map(jobHtml).join(''):'<p class="muted">Žádná zakázka neodpovídá filtru.</p>'}
 function jobHtml(x){let b=x.status==='Zaplaceno'?'badge':x.status==='Hotovo'?'badge':'badge partial';return `<div class="job" onclick="openJob(${x.id})"><div class="jobicon">◷</div><div class="grow"><div class="jobname">${esc(x.name)}</div><div class="jobmeta">${esc(x.date)}${x.customer?' · '+esc(x.customer):''}</div><span class="${b}">${esc(x.status)}</span></div><div class="amount">${x.amount.toLocaleString('cs-CZ')} Kč</div></div>`}
 function openJob(id){let x=get('v_jobs').find(j=>j.id===id);if(!x)return;$('detail').innerHTML=`<div class="card detailHero"><div class="muted">${esc(x.date)}</div><h1>${esc(x.name)}</h1><div class="big">${x.amount.toLocaleString('cs-CZ')} Kč</div><span class="badge">${esc(x.status)}</span></div><div class="card"><h2>Základní informace</h2><p><span class="muted">Zákazník / lokalita</span><br>${esc(x.customer)||'Neuvedeno'}</p><p><span class="muted">Rozsah práce</span><br>${esc(x.note)||'Neuvedeno'}</p><p><span class="muted">Odhad času</span><br>${x.time?x.time+' min':'Neuvedeno'}</p><p><span class="muted">Přímé náklady</span><br>${x.cost.toLocaleString('cs-CZ')} Kč</p></div><div class="card"><h2>Průběh zakázky</h2><div class="timeline"><div class="tl">Zakázka evidována · ${esc(x.date)}</div><div class="tl">Stav: ${esc(x.status)}</div></div><button class="danger" onclick="delJob(${x.id})">Smazat zakázku</button></div>`;show('jobdetail')}
-function calculate(){let base=num('cw')*num('cp')+num('cf')+num('ct')+num('cm')+num('co'),total=base*(1+num('margin')/100);$('calcResult').textContent=Math.round(total).toLocaleString('cs-CZ')+' Kč';$('calcDetail').textContent='Základ '+Math.round(base).toLocaleString('cs-CZ')+' Kč · přirážka '+num('margin')+' %. Výsledek je kalkulace, ne ověřená tržní cena.'}
+function calcQty(id){return Math.max(0,Math.floor(Number($(id).value)||0))}
+function changeQty(id,delta){$(id).value=calcQty(id)+delta;calculate()}
+function calcQty(id){return Math.max(0,Math.floor(Number($(id).value)||0))}
+function changeQty(id,delta){$(id).value=calcQty(id)+delta;calculate()}
+function calculate(){let s=calcQty('cSmall'),m=calcQty('cMedium'),l=calcQty('cLarge'),st=s*50,mt=m*85,lt=l*150,total=st+mt+lt;$('smallTotal').textContent=st.toLocaleString('cs-CZ')+' Kč';$('mediumTotal').textContent=mt.toLocaleString('cs-CZ')+' Kč';$('largeTotal').textContent=lt.toLocaleString('cs-CZ')+' Kč';$('calcResult').textContent=total.toLocaleString('cs-CZ')+' Kč';$('calcDetail').textContent=`${s} malých · ${m} středních · ${l} velkých/francouzských`}
+function useCalcPriceFromStandalone(){
+  $('ja').value=calcQty('cSmall')*50+calcQty('cMedium')*85+calcQty('cLarge')*150;
+  show('newjob');
+}
+function resetCalc(){$('cSmall').value=0;$('cMedium').value=0;$('cLarge').value=0;calculate()}
+function useCalcPrice(){$('ja').value=calcQty('cSmall')*50+calcQty('cMedium')*85+calcQty('cLarge')*150}
+function resetCalc(){$('cSmall').value=0;$('cMedium').value=0;$('cLarge').value=0;calculate()}
+function useCalcPrice(){let s=calcQty('cSmall'),m=calcQty('cMedium'),l=calcQty('cLarge'),total=s*50+m*85+l*150;$('ja').value=total;let scope=[];if(s)scope.push(`malá okna: ${s} ks`);if(m)scope.push(`střední okna: ${m} ks`);if(l)scope.push(`velká/francouzská okna: ${l} ks`);$('jnote').value=scope.join(' · ');show('newjob')}
 function saveFin(){let a=get('v_fin');a.unshift({type:$('ft').value,amount:num('fa'),name:$('fn').value||'Bez popisu',date:new Date().toLocaleDateString('cs-CZ')});put('v_fin',a);$('fa').value='';$('fn').value='';renderFin();dashboard()}
 function delFin(i){let a=get('v_fin');a.splice(i,1);put('v_fin',a);renderFin();dashboard()}
 function renderFin(){let a=get('v_fin');$('finList').innerHTML=a.length?a.map((x,i)=>`<div class="job"><div class="grow"><b>${esc(x.type)}</b><div class="jobmeta">${esc(x.name)} · ${esc(x.date)}</div></div><div class="amount">${x.amount.toLocaleString('cs-CZ')} Kč</div><button class="secondary" style="width:auto;margin:0" onclick="delFin(${i})">×</button></div>`).join(''):'<p class="muted">Zatím žádné položky.</p>'}
