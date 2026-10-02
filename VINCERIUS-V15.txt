@@ -1,0 +1,4 @@
+Vincerius v1.5
+Fresh asset names build 2026-10-02
+Logo: vincerius-helmet-v15-20261002.png
+Service worker: vincerius-sw-v15.js

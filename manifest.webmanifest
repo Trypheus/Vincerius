@@ -1,6 +1,6 @@
 {
-  "name": "Vincerius",
-  "short_name": "Vincerius",
+  "name": "Vincerius v1.5",
+  "short_name": "Vincerius v1.5",
   "description": "Jednoduchý pomocník pro evidenci zakázek, kalkulace a finance.",
   "lang": "cs",
   "start_url": "./",
@@ -9,5 +9,5 @@
   "orientation": "portrait",
   "background_color": "#050505",
   "theme_color": "#050505",
-  "icons":[{"src":"vincerius-logo.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]
+  "icons":[{"src":"vincerius-helmet-v15-20261002.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]
 }
