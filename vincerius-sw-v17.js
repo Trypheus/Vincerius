@@ -1,0 +1,34 @@
+const CACHE = 'vincerius-cache-v17';
+const ASSETS = [
+  './index.html?v=17',
+  './vincerius-manifest-v17.webmanifest',
+  './vincerius-helmet-v17-20261002.png'
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', event => {
+  const request = event.request;
+  if (request.method !== 'GET') return;
+  event.respondWith(
+    fetch(request, {cache:'no-store'})
+      .then(response => {
+        if (response && response.ok && new URL(request.url).origin === self.location.origin) {
+          const copy = response.clone();
+          caches.open(CACHE).then(cache => cache.put(request, copy));
+        }
+        return response;
+      })
+      .catch(() => caches.match(request).then(r => r || caches.match('./index.html?v=17')))
+  );
+});
