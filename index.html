@@ -4,8 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#050505">
-<link rel="manifest" href="manifest.webmanifest">
-<title>Vincerius</title>
+<link rel="manifest" href="vincerius-manifest-v16.webmanifest">
+<title>Vincerius V1.6</title>
+<meta name="application-version" content="1.6.0-cache-free-20261002">
+<meta name="cache-control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <style>
 :root{--bg:#050505;--panel:#0d0d0f;--panel2:#151517;--red:#ef1717;--red2:#ff3030;--text:#f5f5f5;--muted:#9a9a9f;--line:#29292d;--green:#42d17a;--amber:#e9a72b}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% -10%,#260707 0,#050505 35%);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:82px}
@@ -39,7 +44,7 @@ nav button{background:none;border:0;color:#777;border-radius:0;margin:0;padding:
 .qtybtn{width:42px!important;height:44px;margin:0!important;padding:0!important;font-size:22px;background:#171719;border-color:#3a3a3d}
 
 .brand img{width:58px!important;height:58px!important;object-fit:contain!important;background:#050505!important;border-radius:10px!important}
-</style>
+.app-version{position:fixed;right:8px;top:8px;font-size:9px;color:#666;z-index:9999;letter-spacing:.5px}</style>
 
 <style id="vincerius-fix-add-button">
 /* Keep the dashboard clear: the floating add-job button is removed. */
@@ -62,9 +67,9 @@ button[title*="zakázku" i],
 </style>
 
 </head>
-<body>
+<body><div class="app-version">V1.6</div>
 <header>
-<div class="brand"><img src="./vincerius-helmet-v15-20261002.png.png" alt="Vincerius"></div>
+<div class="brand"><img src="./vincerius-helmet-v16-20261002.png.png" alt="Vincerius"></div>
 <button class="iconbtn" onclick="alert('Oznámení zatím nejsou připojena.')">♧</button>
 </header>
 
@@ -160,47 +165,6 @@ button[title*="zakázku" i],
     <button type="button" class="secondary" onclick="resetCalc()">Vynulovat kalkulaci</button>
   </div>
 </section>
-<script>
-const $=id=>document.getElementById(id), num=id=>Number($(id).value)||0;
-let activeFilter='Vše';
-function get(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return[]}}function put(k,v){localStorage.setItem(k,JSON.stringify(v))}
-function show(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('nav button[data-p]').forEach(b=>b.classList.toggle('active',b.dataset.p===id));if(id==='home')dashboard();if(id==='history')renderHistory();if(id==='finance')renderFin()}
-function saveJob(){let a=get('v_jobs');a.unshift({id:Date.now(),name:$('jn').value||'Bez názvu',amount:num('ja'),status:$('js').value,customer:$('jc').value,note:$('jnote').value,time:num('jtime'),cost:num('jcost'),date:new Date().toLocaleDateString('cs-CZ')});put('v_jobs',a);['jn','ja','jc','jnote','jtime','jcost'].forEach(id=>$(id).value='');show('history')}
-function delJob(id){put('v_jobs',get('v_jobs').filter(x=>x.id!==id));show('history')}
-function filterHist(x,b){activeFilter=x;document.querySelectorAll('.filters button').forEach(y=>y.classList.remove('sel'));b.classList.add('sel');renderHistory()}
-function renderHistory(){let q=($('search').value||'').toLowerCase(),a=get('v_jobs').filter(x=>(activeFilter==='Vše'||x.status===activeFilter)&&(`${x.name} ${x.customer} ${x.note}`.toLowerCase().includes(q)));$('histCount').textContent=a.length+' zak.';$('historyList').innerHTML=a.length?a.map(jobHtml).join(''):'<p class="muted">Žádná zakázka neodpovídá filtru.</p>'}
-function jobHtml(x){let b=x.status==='Zaplaceno'?'badge':x.status==='Hotovo'?'badge':'badge partial';return `<div class="job" onclick="openJob(${x.id})"><div class="jobicon">◷</div><div class="grow"><div class="jobname">${esc(x.name)}</div><div class="jobmeta">${esc(x.date)}${x.customer?' · '+esc(x.customer):''}</div><span class="${b}">${esc(x.status)}</span></div><div class="amount">${x.amount.toLocaleString('cs-CZ')} Kč</div></div>`}
-function openJob(id){let x=get('v_jobs').find(j=>j.id===id);if(!x)return;$('detail').innerHTML=`<div class="card detailHero"><div class="muted">${esc(x.date)}</div><h1>${esc(x.name)}</h1><div class="big">${x.amount.toLocaleString('cs-CZ')} Kč</div><span class="badge">${esc(x.status)}</span></div><div class="card"><h2>Základní informace</h2><p><span class="muted">Zákazník / lokalita</span><br>${esc(x.customer)||'Neuvedeno'}</p><p><span class="muted">Rozsah práce</span><br>${esc(x.note)||'Neuvedeno'}</p><p><span class="muted">Odhad času</span><br>${x.time?x.time+' min':'Neuvedeno'}</p><p><span class="muted">Přímé náklady</span><br>${x.cost.toLocaleString('cs-CZ')} Kč</p></div><div class="card"><h2>Průběh zakázky</h2><div class="timeline"><div class="tl">Zakázka evidována · ${esc(x.date)}</div><div class="tl">Stav: ${esc(x.status)}</div></div><button class="danger" onclick="delJob(${x.id})">Smazat zakázku</button></div>`;show('jobdetail')}
-function calcQty(id){return Math.max(0,Math.floor(Number($(id).value)||0))}
-function changeQty(id,delta){$(id).value=calcQty(id)+delta;calculate()}
-function calcQty(id){return Math.max(0,Math.floor(Number($(id).value)||0))}
-function changeQty(id,delta){$(id).value=calcQty(id)+delta;calculate()}
-function calculate(){let s=calcQty('cSmall'),m=calcQty('cMedium'),l=calcQty('cLarge'),st=s*50,mt=m*85,lt=l*150,total=st+mt+lt;$('smallTotal').textContent=st.toLocaleString('cs-CZ')+' Kč';$('mediumTotal').textContent=mt.toLocaleString('cs-CZ')+' Kč';$('largeTotal').textContent=lt.toLocaleString('cs-CZ')+' Kč';$('calcResult').textContent=total.toLocaleString('cs-CZ')+' Kč';$('calcDetail').textContent=`${s} malých · ${m} středních · ${l} velkých/francouzských`}
-function useCalcPriceFromStandalone(){
-  $('ja').value=calcQty('cSmall')*50+calcQty('cMedium')*85+calcQty('cLarge')*150;
-  show('newjob');
-}
-function resetCalc(){$('cSmall').value=0;$('cMedium').value=0;$('cLarge').value=0;calculate()}
-function useCalcPrice(){$('ja').value=calcQty('cSmall')*50+calcQty('cMedium')*85+calcQty('cLarge')*150}
-function resetCalc(){$('cSmall').value=0;$('cMedium').value=0;$('cLarge').value=0;calculate()}
-function useCalcPrice(){let s=calcQty('cSmall'),m=calcQty('cMedium'),l=calcQty('cLarge'),total=s*50+m*85+l*150;$('ja').value=total;let scope=[];if(s)scope.push(`malá okna: ${s} ks`);if(m)scope.push(`střední okna: ${m} ks`);if(l)scope.push(`velká/francouzská okna: ${l} ks`);$('jnote').value=scope.join(' · ');show('newjob')}
-function saveFin(){let a=get('v_fin');a.unshift({type:$('ft').value,amount:num('fa'),name:$('fn').value||'Bez popisu',date:new Date().toLocaleDateString('cs-CZ')});put('v_fin',a);$('fa').value='';$('fn').value='';renderFin();dashboard()}
-function delFin(i){let a=get('v_fin');a.splice(i,1);put('v_fin',a);renderFin();dashboard()}
-function renderFin(){let a=get('v_fin');$('finList').innerHTML=a.length?a.map((x,i)=>`<div class="job"><div class="grow"><b>${esc(x.type)}</b><div class="jobmeta">${esc(x.name)} · ${esc(x.date)}</div></div><div class="amount">${x.amount.toLocaleString('cs-CZ')} Kč</div><button class="secondary" style="width:auto;margin:0" onclick="delFin(${i})">×</button></div>`).join(''):'<p class="muted">Zatím žádné položky.</p>'}
-function dashboard(){let j=get('v_jobs'),f=get('v_fin'),inc=f.filter(x=>x.type==='Příjem').reduce((s,x)=>s+x.amount,0)+j.filter(x=>x.status==='Zaplaceno').reduce((s,x)=>s+x.amount,0),cost=f.filter(x=>x.type==='Náklad').reduce((s,x)=>s+x.amount,0);$('sJobs').textContent=j.length;$('sIncome').textContent=inc.toLocaleString('cs-CZ')+' Kč';$('sCosts').textContent=cost.toLocaleString('cs-CZ')+' Kč';$('sProfit').textContent=(inc-cost).toLocaleString('cs-CZ')+' Kč';$('sProfit').className=(inc-cost)>=0?'positive':'';$('recent').innerHTML=j.slice(0,3).map(jobHtml).join('')||'<p class="muted">Zatím žádné zakázky.</p>'}
-function exportCSV(){let a=get('v_jobs'),csv='ID;Datum;Zakázka;Zákazník;Stav;Cena;Náklady;Čas;Poznámka\\n'+a.map(x=>[x.id,x.date,x.name,x.customer,x.status,x.amount,x.cost,x.time,x.note].map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(';')).join('\\n');let blob=new Blob(['\\ufeff'+csv],{type:'text/csv;charset=utf-8'}),u=URL.createObjectURL(blob),ael=document.createElement('a');ael.href=u;ael.download='vincerius-zakazky.csv';ael.click();URL.revokeObjectURL(u)}
-function clearAll(){if(confirm('Smazat všechna lokální data Vincerius?')){localStorage.clear();dashboard();renderHistory();renderFin()}}
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-dashboard();renderHistory();renderFin();calculate();
-</script>
 
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./vincerius-sw-v15.js", {scope: "./"})
-      .catch(err => console.log("Service worker registration failed:", err));
-  });
-}
-</script>
 
 </body></html>
