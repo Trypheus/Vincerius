@@ -1,4 +1,0 @@
-VINCERIUS V1.7
-New Service Worker: vincerius-sw-v17.js
-New cache: vincerius-cache-v17
-Calculator: included
