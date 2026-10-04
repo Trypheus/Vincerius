@@ -1,1 +1,0 @@
-Silné znečištění = +30 % z ceny mytí oken, ne pevná částka v Kč.
