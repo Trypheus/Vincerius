@@ -100,12 +100,6 @@ nav button{background:none;border:0;color:#aaa;padding:7px 9px;font-size:12px;bo
 </div></section></main>
 <nav id="nav"></nav>
 <script>
-const KEY='vincerius_clean_v2';
-const defaultPrices={small:50,medium:85,large:150,balcony:120,shop:200,frames:20,sills:15,heavy:100,stickers:80,glassdoors:120,other:100,transport:50};
-const inventory=[['Teleskopická tyč','Nástroje na mytí oken'],['Stěrka na okna','Nástroje na mytí oken'],['Rozmývák / návlek na okna','Nástroje na mytí oken'],['Kbelík','Nástroje na mytí oken'],['Mikrovláknové utěrky','Nástroje na mytí oken'],['Hadříky na rámy','Nástroje na mytí oken'],['Houbičky','Nástroje na mytí oken'],['Kartáč na rámy','Nástroje na mytí oken'],['Škrabka na sklo','Nástroje na mytí oken'],['Náhradní gumy do stěrky','Nástroje na mytí oken'],['Náhradní návleky','Nástroje na mytí oken'],['Odměrka na čisticí prostředek','Nástroje na mytí oken'],['Lahve s rozprašovačem','Nástroje na mytí oken'],['Čisticí prostředek na sklo','Nástroje na mytí oken'],['Čisticí prostředek na rámy','Nástroje na mytí oken'],['Malý kartáček','Parapety a detaily'],['Detailovací štětec','Parapety a detaily'],['Malá stěrka','Parapety a detaily'],['Mikrovláknové utěrky na dokončování','Parapety a detaily'],['Papírové utěrky','Parapety a detaily'],['Pracovní rukavice','Bezpečnost a ochrana'],['Protiskluzová obuv','Bezpečnost a ochrana'],['Pracovní oblečení','Bezpečnost a ochrana'],['Reflexní prvek / vesta podle situace','Bezpečnost a ochrana'],['Lékárnička','Bezpečnost a ochrana'],['Výstražná páska pro vymezení prostoru podle potřeby','Bezpečnost a ochrana'],['Taška nebo box na nářadí','Organizace vybavení'],['Kbelík s držadlem','Organizace vybavení'],['Organizér na drobné nástroje','Organizace vybavení'],['Náhradní hadry a návleky','Organizace vybavení'],['Odpadkový sáček','Organizace vybavení']];
-let data=JSON.parse(localStorage.getItem(KEY)||'{}');
-data.jobs=data.jobs||[]; data.expenses=data.expenses||[]; data.prices=Object.assign({},defaultPrices,data.prices||{}); data.maxDiscount=Math.max(0,Math.min(100,Number(data.maxDiscount)||30)); data.equipment=(data.equipment&&data.equipment.length?data.equipment:inventory.map(x=>[x[0],'Dobrý'])).map((e,i)=>[e[0]||inventory[i]?.[0]||'Vybavení',e[1]==='OK'?'Dobrý':(e[1]||'Dobrý')]); for(const item of inventory) if(!data.equipment.some(e=>e[0]===item[0])) data.equipment.push([item[0],'Dobrý']);
-const calcState={main:{small:0,medium:0,large:0,balcony:0,shop:0,frames:0,sills:0,heavy:false,stickers:0,glassdoors:0,other:false,discount:0,transport:true},new:{small:0,medium:0,large:0,balcony:0,shop:0,frames:0,sills:0,heavy:false,stickers:0,glassdoors:0,other:false,discount:0,transport:true}};
 function loadData(){
   const raw=JSON.parse(localStorage.getItem(KEY)||'{}');
   return raw;
@@ -122,7 +116,7 @@ function calcBase(s){
 }
 function calcExtras(s){
   return s.frames*priceFor('frames')+s.sills*priceFor('sills')+
-    (s.heavy?priceFor('heavy'):0)+s.stickers*priceFor('stickers')+
+    (s.heavy?Math.round(calcBase(s)*priceFor('heavy')/100):0)+s.stickers*priceFor('stickers')+
     s.glassdoors*priceFor('glassdoors')+(s.other?priceFor('other'):0);
 }
 function calcResult(s){
@@ -155,7 +149,7 @@ function renderCalc(prefix,rootId,summaryId){
     <div class="sectionTitle">🧽 Doplňkové služby</div>
     ${qtyRow(prefix,'frames','Mytí rámů')}
     ${qtyRow(prefix,'sills','Mytí parapetů')}
-    ${toggleRow(prefix,'heavy','Silné znečištění')}
+    ${toggleRow(prefix,'heavy','Silné znečištění (+ '+priceFor('heavy')+' % z mytí oken)')}
     ${qtyRow(prefix,'stickers','Odstranění samolepek')}
     ${qtyRow(prefix,'glassdoors','Čištění skleněných dveří')}
     ${toggleRow(prefix,'other','Jiné práce')}
@@ -271,7 +265,7 @@ function offerTextFromCalc(){
   const s=calcState.main,r=calcResult(s),lines=[];
   const q=(n,label)=>{if(s[n]>0)lines.push(`${s[n]}× ${label}`)};
   q('small','malé okno');q('medium','standardní okno');q('large','velké okno');q('balcony','balkonové dveře');q('shop','výloha');
-  q('frames','mytí rámů');q('sills','mytí parapetů');if(s.heavy)lines.push('silné znečištění');q('stickers','odstranění samolepek');q('glassdoors','čištění skleněných dveří');if(s.other)lines.push('jiné práce');if(s.transport)lines.push('doprava');
+  q('frames','mytí rámů');q('sills','mytí parapetů');if(s.heavy)lines.push(`silné znečištění (+ ${priceFor('heavy')} % z mytí oken)`);q('stickers','odstranění samolepek');q('glassdoors','čištění skleněných dveří');if(s.other)lines.push('jiné práce');if(s.transport)lines.push('doprava');
   return `VINCERIUS\nCenová nabídka\n\n${lines.join('\n')||'Bez položek'}\n\nCelkem: ${money(r.total)}`;
 }
 function copyCalcOffer(){
@@ -286,8 +280,8 @@ function makeOffer(){
   w.document.write(`<html><head><title>Nabídka — Vincerius</title><style>body{font:16px Arial;max-width:700px;margin:50px auto}h1{color:#d11}hr{border:0;border-top:1px solid #ddd}button{padding:10px}</style></head><body><h1>VINCERIUS</h1><h2>Cenová nabídka</h2><p><b>Zákazník:</b> ${esc(j.customer)}<br><b>Adresa:</b> ${esc(j.address||'—')}<br><b>Datum:</b> ${esc(j.date)}</p><hr><h2>${money(j.price)}</h2><p>Nabídka platí ${days} dní od vystavení.</p><button onclick="print()">Tisk / Uložit jako PDF</button></body></html>`);w.document.close();
 }
 function renderPriceSettings(){
-  const labels={small:'Malé okno',medium:'Standardní okno',large:'Velké okno',balcony:'Balkonové dveře',shop:'Výloha',frames:'Mytí rámů',sills:'Mytí parapetů',heavy:'Silné znečištění',stickers:'Odstranění samolepek',glassdoors:'Čištění skleněných dveří',other:'Jiné práce',transport:'Doprava'};
-  $('priceSettings').innerHTML=Object.keys(labels).map(k=>`<label>${labels[k]} (${['frames','sills','stickers','glassdoors'].includes(k)?'za kus':'paušál'})<input data-price="${k}" type="number" min="0" step="1" value="${priceFor(k)}"></label>`).join('');
+  const labels={small:'Malé okno',medium:'Standardní okno',large:'Velké okno',balcony:'Balkonové dveře',shop:'Výloha',frames:'Mytí rámů',sills:'Mytí parapetů',heavy:'Silné znečištění (%)',stickers:'Odstranění samolepek',glassdoors:'Čištění skleněných dveří',other:'Jiné práce',transport:'Doprava'};
+  $('priceSettings').innerHTML=Object.keys(labels).map(k=>`<label>${labels[k]} (${k==='heavy'?'% z mytí oken':['frames','sills','stickers','glassdoors'].includes(k)?'za kus':'paušál'})<input data-price="${k}" type="number" min="0" step="1" value="${priceFor(k)}"></label>`).join('');
   $('maxDiscount').value=data.maxDiscount;
 }
 function savePriceSettings(){
@@ -298,6 +292,6 @@ function savePriceSettings(){
 }
 $('fDate').value=new Date().toISOString().slice(0,10);
 render();
-if('serviceWorker' in navigator){navigator.serviceWorker.register('vincerius-sw-v4.js',{updateViaCache:'none'}).catch(()=>{})}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('vincerius-sw-v4-30.js',{updateViaCache:'none'}).catch(()=>{})}
 </script>
 </body></html>
