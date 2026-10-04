@@ -78,7 +78,7 @@ nav button{background:none;border:0;color:#aaa;padding:7px 9px;font-size:12px;bo
 <button class="btn" onclick="savePriceSettings()">Uložit ceník</button>
 </div></section>
 
-<section id="offers class="page"><h1>Cenová nabídka</h1><div class="card"><p class="muted">Vyber zakázku a vytvoř jednoduchou tisknutelnou nabídku.</p><select id="offerJob"></select><label>Platnost nabídky (dny)<input id="offerDays" type="number" value="14" min="1"></label><button class="btn" onclick="makeOffer()">Vytvořit nabídku</button></div></section>
+<section id="offers" class="page"><h1>Cenová nabídka</h1><div class="card"><p class="muted">Vyber zakázku a vytvoř jednoduchou tisknutelnou nabídku.</p><select id="offerJob"></select><label>Platnost nabídky (dny)<input id="offerDays" type="number" value="14" min="1"></label><button class="btn" onclick="makeOffer()">Vytvořit nabídku</button></div></section>
 
 <section id="equipment" class="page"><h1>Nástroje a vybavení</h1>
 <div class="grid" style="margin-bottom:14px">
@@ -100,12 +100,26 @@ nav button{background:none;border:0;color:#aaa;padding:7px 9px;font-size:12px;bo
 </div></section></main>
 <nav id="nav"></nav>
 <script>
-const KEY='vincerius_clean_v2';
-const defaultPrices={small:50,medium:85,large:150,balcony:120,shop:200,frames:20,sills:15,heavy:100,stickers:80,glassdoors:120,other:100,transport:50};
-const inventory=[['Teleskopická tyč','Nástroje na mytí oken'],['Stěrka na okna','Nástroje na mytí oken'],['Rozmývák / návlek na okna','Nástroje na mytí oken'],['Kbelík','Nástroje na mytí oken'],['Mikrovláknové utěrky','Nástroje na mytí oken'],['Hadříky na rámy','Nástroje na mytí oken'],['Houbičky','Nástroje na mytí oken'],['Kartáč na rámy','Nástroje na mytí oken'],['Škrabka na sklo','Nástroje na mytí oken'],['Náhradní gumy do stěrky','Nástroje na mytí oken'],['Náhradní návleky','Nástroje na mytí oken'],['Odměrka na čisticí prostředek','Nástroje na mytí oken'],['Lahve s rozprašovačem','Nástroje na mytí oken'],['Čisticí prostředek na sklo','Nástroje na mytí oken'],['Čisticí prostředek na rámy','Nástroje na mytí oken'],['Malý kartáček','Parapety a detaily'],['Detailovací štětec','Parapety a detaily'],['Malá stěrka','Parapety a detaily'],['Mikrovláknové utěrky na dokončování','Parapety a detaily'],['Papírové utěrky','Parapety a detaily'],['Pracovní rukavice','Bezpečnost a ochrana'],['Protiskluzová obuv','Bezpečnost a ochrana'],['Pracovní oblečení','Bezpečnost a ochrana'],['Reflexní prvek / vesta podle situace','Bezpečnost a ochrana'],['Lékárnička','Bezpečnost a ochrana'],['Výstražná páska pro vymezení prostoru podle potřeby','Bezpečnost a ochrana'],['Taška nebo box na nářadí','Organizace vybavení'],['Kbelík s držadlem','Organizace vybavení'],['Organizér na drobné nástroje','Organizace vybavení'],['Náhradní hadry a návleky','Organizace vybavení'],['Odpadkový sáček','Organizace vybavení']];
-let data=JSON.parse(localStorage.getItem(KEY)||'{}');
-data.jobs=data.jobs||[]; data.expenses=data.expenses||[]; data.prices=Object.assign({},defaultPrices,data.prices||{}); data.maxDiscount=Math.max(0,Math.min(100,Number(data.maxDiscount)||30)); data.equipment=(data.equipment&&data.equipment.length?data.equipment:inventory.map(x=>[x[0],'Dobrý'])).map((e,i)=>[e[0]||inventory[i]?.[0]||'Vybavení',e[1]==='OK'?'Dobrý':(e[1]||'Dobrý')]); for(const item of inventory) if(!data.equipment.some(e=>e[0]===item[0])) data.equipment.push([item[0],'Dobrý']);
-const calcState={main:{small:0,medium:0,large:0,balcony:0,shop:0,frames:0,sills:0,heavy:false,stickers:0,glassdoors:0,other:false,discount:0,transport:true},new:{small:0,medium:0,large:0,balcony:0,shop:0,frames:0,sills:0,heavy:false,stickers:0,glassdoors:0,other:false,discount:0,transport:true}};
+const KEY='vincerius_v4';
+const DEFAULT_PRICES={small:50,medium:85,large:150,balcony:150,shop:150,frames:20,sills:15,heavy:30,stickers:50,glassdoors:100,other:100,transport:0};
+const inventory=[
+['Teleskopická tyč','Nástroje na mytí oken'],['Stěrka na okna','Nástroje na mytí oken'],['Rozmývák / návlek na okna','Nástroje na mytí oken'],['Kbelík','Nástroje na mytí oken'],['Mikrovláknové utěrky','Nástroje na mytí oken'],['Hadříky na rámy','Nástroje na mytí oken'],['Houbičky','Nástroje na mytí oken'],['Kartáč na rámy','Nástroje na mytí oken'],['Škrabka na sklo','Nástroje na mytí oken'],['Náhradní gumy do stěrky','Nástroje na mytí oken'],['Náhradní návleky','Nástroje na mytí oken'],['Odměrka na čisticí prostředek','Nástroje na mytí oken'],['Lahve s rozprašovačem','Nástroje na mytí oken'],['Čisticí prostředek na sklo','Nástroje na mytí oken'],['Čisticí prostředek na rámy','Nástroje na mytí oken'],
+['Malý kartáček','Parapety a detaily'],['Detailovací štětec','Parapety a detaily'],['Malá stěrka','Parapety a detaily'],['Mikrovláknové utěrky na dokončování','Parapety a detaily'],['Papírové utěrky','Parapety a detaily'],
+['Pracovní rukavice','Bezpečnost a ochrana'],['Protiskluzová obuv','Bezpečnost a ochrana'],['Pracovní oblečení','Bezpečnost a ochrana'],['Reflexní prvek / vesta podle situace','Bezpečnost a ochrana'],['Lékárnička','Bezpečnost a ochrana'],['Výstražná páska pro vymezení prostoru podle potřeby','Bezpečnost a ochrana'],
+['Taška nebo box na nářadí','Organizace vybavení'],['Kbelík s držadlem','Organizace vybavení'],['Organizér na drobné nástroje','Organizace vybavení'],['Náhradní hadry a návleky','Organizace vybavení'],['Odpadkový sáček','Organizace vybavení']
+];
+const DEFAULT_EQUIPMENT=inventory.map(x=>[x[0],'Dobrý']);
+let data=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}})()||{};
+data.jobs=Array.isArray(data.jobs)?data.jobs:[];
+data.expenses=Array.isArray(data.expenses)?data.expenses:[];
+data.prices={...DEFAULT_PRICES,...(data.prices||{})};
+data.maxDiscount=Math.max(0,Math.min(100,Number(data.maxDiscount)||0));
+data.heavyPercent=Math.max(0,Math.min(100,Number(data.heavyPercent??30)||0));
+data.equipment=Array.isArray(data.equipment)&&data.equipment.length?data.equipment:DEFAULT_EQUIPMENT.map(x=>[...x]);
+// Normalize old equipment status values.
+data.equipment=data.equipment.map(e=>[e[0],e[1]==='OK'?'Dobrý':(e[1]==='Low'?'Dochází':(e[1]==='Buy'?'Koupit':e[1]))]);
+let calcState={main:{small:0,medium:0,large:0,balcony:0,shop:0,frames:0,sills:0,heavy:false,stickers:0,glassdoors:0,other:false,discount:0,transport:true},new:{small:0,medium:0,large:0,balcony:0,shop:0,frames:0,sills:0,heavy:false,stickers:0,glassdoors:0,other:false,discount:0,transport:true}};
+
 function loadData(){
   const raw=JSON.parse(localStorage.getItem(KEY)||'{}');
   return raw;
@@ -122,7 +136,7 @@ function calcBase(s){
 }
 function calcExtras(s){
   return s.frames*priceFor('frames')+s.sills*priceFor('sills')+
-    (s.heavy?priceFor('heavy'):0)+s.stickers*priceFor('stickers')+
+    (s.heavy?Math.round(calcBase(s)*Number(data.heavyPercent||30)/100):0)+s.stickers*priceFor('stickers')+
     s.glassdoors*priceFor('glassdoors')+(s.other?priceFor('other'):0);
 }
 function calcResult(s){
@@ -142,7 +156,8 @@ function qtyRow(prefix,key,label){
 }
 function toggleRow(prefix,key,label){
   const s=calcState[prefix];
-  return `<div class="service"><label style="margin:0"><input type="checkbox" ${s[key]?'checked':''} onchange="toggleCalc('${prefix}','${key}',this.checked)"> ${label}</label><span class="small">${money(priceFor(key))}</span></div>`;
+  const suffix=key==='heavy'?`+${Number(data.heavyPercent||30)} % z mytí oken`:money(priceFor(key));
+  return `<div class="service"><label style="margin:0"><input type="checkbox" ${s[key]?'checked':''} onchange="toggleCalc('${prefix}','${key}',this.checked)"> ${label}</label><span class="small">${suffix}</span></div>`;
 }
 function renderCalc(prefix,rootId,summaryId){
   const s=calcState[prefix], root=$(rootId);
@@ -155,7 +170,7 @@ function renderCalc(prefix,rootId,summaryId){
     <div class="sectionTitle">🧽 Doplňkové služby</div>
     ${qtyRow(prefix,'frames','Mytí rámů')}
     ${qtyRow(prefix,'sills','Mytí parapetů')}
-    ${toggleRow(prefix,'heavy','Silné znečištění')}
+    ${toggleRow(prefix,'heavy',`Silné znečištění (+${Number(data.heavyPercent||30)} % z mytí oken)`)}
     ${qtyRow(prefix,'stickers','Odstranění samolepek')}
     ${qtyRow(prefix,'glassdoors','Čištění skleněných dveří')}
     ${toggleRow(prefix,'other','Jiné práce')}
@@ -271,7 +286,7 @@ function offerTextFromCalc(){
   const s=calcState.main,r=calcResult(s),lines=[];
   const q=(n,label)=>{if(s[n]>0)lines.push(`${s[n]}× ${label}`)};
   q('small','malé okno');q('medium','standardní okno');q('large','velké okno');q('balcony','balkonové dveře');q('shop','výloha');
-  q('frames','mytí rámů');q('sills','mytí parapetů');if(s.heavy)lines.push('silné znečištění');q('stickers','odstranění samolepek');q('glassdoors','čištění skleněných dveří');if(s.other)lines.push('jiné práce');if(s.transport)lines.push('doprava');
+  q('frames','mytí rámů');q('sills','mytí parapetů');if(s.heavy)lines.push(`silné znečištění (+${Number(data.heavyPercent||30)} % z mytí oken)`);q('stickers','odstranění samolepek');q('glassdoors','čištění skleněných dveří');if(s.other)lines.push('jiné práce');if(s.transport)lines.push('doprava');
   return `VINCERIUS\nCenová nabídka\n\n${lines.join('\n')||'Bez položek'}\n\nCelkem: ${money(r.total)}`;
 }
 function copyCalcOffer(){
@@ -287,17 +302,19 @@ function makeOffer(){
 }
 function renderPriceSettings(){
   const labels={small:'Malé okno',medium:'Standardní okno',large:'Velké okno',balcony:'Balkonové dveře',shop:'Výloha',frames:'Mytí rámů',sills:'Mytí parapetů',heavy:'Silné znečištění',stickers:'Odstranění samolepek',glassdoors:'Čištění skleněných dveří',other:'Jiné práce',transport:'Doprava'};
-  $('priceSettings').innerHTML=Object.keys(labels).map(k=>`<label>${labels[k]} (${['frames','sills','stickers','glassdoors'].includes(k)?'za kus':'paušál'})<input data-price="${k}" type="number" min="0" step="1" value="${priceFor(k)}"></label>`).join('');
+  $('priceSettings').innerHTML=Object.keys(labels).filter(k=>k!=='heavy').map(k=>`<label>${labels[k]} (${['frames','sills','stickers','glassdoors'].includes(k)?'za kus':'paušál'})<input data-price="${k}" type="number" min="0" step="1" value="${priceFor(k)}"></label>`).join('')+`<label>Silné znečištění (příplatek % z mytí oken)<input id="heavyPercent" type="number" min="0" max="100" step="1" value="${Number(data.heavyPercent||30)}"></label>`;
   $('maxDiscount').value=data.maxDiscount;
 }
 function savePriceSettings(){
   document.querySelectorAll('[data-price]').forEach(x=>data.prices[x.dataset.price]=Math.max(0,Number(x.value)||0));
+  data.heavyPercent=Math.max(0,Math.min(100,Number($('heavyPercent').value)||0));
   data.maxDiscount=Math.max(0,Math.min(100,Number($('maxDiscount').value)||0));save();
   Object.values(calcState).forEach(s=>s.discount=Math.min(s.discount,data.maxDiscount));
   render();alert('Ceník uložen.');
 }
+save();
 $('fDate').value=new Date().toISOString().slice(0,10);
 render();
-if('serviceWorker' in navigator){navigator.serviceWorker.register('vincerius-sw-v4.js',{updateViaCache:'none'}).catch(()=>{})}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('vincerius-sw-v5-30.js',{updateViaCache:'none'}).catch(()=>{})}
 </script>
 </body></html>
