@@ -27,7 +27,7 @@ nav button{background:none;border:0;color:#aaa;padding:7px 9px;font-size:12px;bo
 </style>
 </head>
 <body>
-<header><img class="logo" src="vincerius-helmet-v2.png"><div><div class="brand">VINCERIUS</div><div class="sub">jednoduchý firemní nástroj</div></div></header>
+<header><img class="logo" src="vincerius-helmet-v2.png"><div><div class="brand">VINCERIUS</div><div class="sub">správa zakázek</div></div></header>
 <main>
 <section id="today" class="page active">
 <h1>Dnes</h1><div class="muted" id="todayDate"></div>
@@ -49,6 +49,7 @@ nav button{background:none;border:0;color:#aaa;padding:7px 9px;font-size:12px;bo
 <div class="summary" id="newSummary"></div>
 <button class="btn secondary" onclick="resetCalc('new')">↻ Nová kalkulace</button>
 </div>
+<label>Náklady na zakázku (Kč)<input id="fCosts" type="number" min="0" step="1" value="0" placeholder="Např. 80 za prostředky a dopravu"></label>
 <label>Stav<select id="fStatus"><option>Nová</option><option>Domluvená</option><option>Hotová</option><option>Zaplacená</option></select></label>
 <label>Poznámka<textarea id="fNote" placeholder="Rozsah práce, domluva…"></textarea></label>
 <div class="actions"><button class="btn" onclick="saveJob()">Uložit zakázku</button><button class="btn secondary" onclick="show('jobs')">Zrušit</button></div>
@@ -78,7 +79,17 @@ nav button{background:none;border:0;color:#aaa;padding:7px 9px;font-size:12px;bo
 <button class="btn" onclick="savePriceSettings()">Uložit ceník</button>
 </div></section>
 
-<section id="offers" class="page"><h1>Cenová nabídka</h1><div class="card"><p class="muted">Vyber zakázku a vytvoř jednoduchou tisknutelnou nabídku.</p><select id="offerJob"></select><label>Platnost nabídky (dny)<input id="offerDays" type="number" value="14" min="1"></label><button class="btn" onclick="makeOffer()">Vytvořit nabídku</button></div></section>
+<section id="offers" class="page"><h1>Cenové nabídky</h1>
+<div class="card"><p class="muted">Vytvoř nabídku z aktuální kalkulačky. Uložené nabídky zůstávají v aplikaci, dokud je nesmažeš.</p>
+<label>Zákazník<input id="offerCustomer" placeholder="Jméno / firma"></label>
+<label>Telefon (volitelné)<input id="offerPhone" inputmode="tel" placeholder="+420 …"></label>
+<label>Adresa (volitelné)<input id="offerAddress" placeholder="Ulice, město"></label>
+<label>Platnost nabídky (dny)<input id="offerDays" type="number" value="14" min="1"></label>
+<label>Poznámka (volitelné)<textarea id="offerNote" placeholder="Rozsah práce nebo podmínky"></textarea></label>
+<div class="summary" id="offerCalcSummary"></div>
+<div class="actions"><button class="btn" onclick="saveOffer()">Uložit nabídku</button><button class="btn secondary" onclick="printDraftOffer()">Tisk / Uložit jako PDF</button></div>
+<p class="small">Cena se přebírá z hlavní kalkulačky. Nejdřív ji nastav v sekci Kalkulačka.</p></div>
+<h2>Uložené nabídky</h2><div id="offerList"></div></section>
 
 <section id="equipment" class="page"><h1>Nástroje a vybavení</h1>
 <div class="grid" style="margin-bottom:14px">
@@ -111,6 +122,7 @@ const inventory=[
 const DEFAULT_EQUIPMENT=inventory.map(x=>[x[0],'Dobrý']);
 let data=(()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}})()||{};
 data.jobs=Array.isArray(data.jobs)?data.jobs:[];
+data.offers=Array.isArray(data.offers)?data.offers:[];
 data.expenses=Array.isArray(data.expenses)?data.expenses:[];
 data.prices={...DEFAULT_PRICES,...(data.prices||{})};
 data.maxDiscount=Math.max(0,Math.min(100,Number(data.maxDiscount)||0));
@@ -206,9 +218,9 @@ function saveJob(){
   const customer=$('fCustomer').value.trim();
   if(!customer){alert('Vyplň zákazníka.');return}
   const r=calcResult(calcState.new);
-  data.jobs.push({id:Date.now(),customer,phone:$('fPhone').value.trim(),address:$('fAddress').value.trim(),date:$('fDate').value,time:$('fTime').value,price:r.total,status:$('fStatus').value,note:$('fNote').value,calc:JSON.parse(JSON.stringify(calcState.new)),created:new Date().toISOString()});
+  data.jobs.push({id:Date.now(),customer,phone:$('fPhone').value.trim(),address:$('fAddress').value.trim(),date:$('fDate').value,time:$('fTime').value,price:r.total,costs:Math.max(0,Number($('fCosts').value)||0),status:$('fStatus').value,note:$('fNote').value,calc:JSON.parse(JSON.stringify(calcState.new)),created:new Date().toISOString()});
   save();
-  ['fCustomer','fPhone','fAddress','fNote'].forEach(id=>$(id).value='');
+  ['fCustomer','fPhone','fAddress','fNote'].forEach(id=>$(id).value='');$('fCosts').value='0';$('fStatus').value='Nová';
   resetCalc('new');
   alert('Zakázka uložena.');
   show('jobs');
@@ -231,11 +243,14 @@ function renderJobs(){
   const box=$('jobList');
   box.innerHTML=data.jobs.length?data.jobs.slice().sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time)).map(j=>`<div class="card job">
     <div class="row"><div><strong>${esc(j.customer)}</strong><span class="small">${esc(j.date)} · ${esc(j.time||'—')} · ${esc(j.address||'')}</span></div><b>${money(j.price)}</b></div>
-    <div class="actions" style="margin-top:9px"><span class="pill ${j.status==='Zaplacená'?'green':j.status==='Hotová'?'yellow':'red'}">${j.status}</span>
+    <div class="small" style="margin-top:8px">Náklady: ${money(Number(j.costs)||0)} · Zbývá před dalšími výdaji: ${money(j.price-(Number(j.costs)||0))}</div>
+    <div class="actions" style="margin-top:9px"><span class="pill ${j.status==='Zaplacená'?'green':j.status==='Hotová'?'yellow':'red'}">${esc(j.status||'Nová')}</span>
     <button class="btn secondary" onclick="cycleStatus(${j.id})">Další stav</button>
+    <button class="btn secondary" onclick="editJobCosts(${j.id})">Upravit náklady</button>
     <button class="btn secondary danger" onclick="deleteJob(${j.id})">🗑️ Smazat</button></div></div>`).join(''):'<div class="empty">Zatím žádné zakázky.</div>';
 }
-function cycleStatus(id){const j=data.jobs.find(x=>x.id===id),s=['Nová','Domluvená','Hotová','Zaplacená'];if(!j)return;j.status=s[(s.indexOf(j.status)+1)%s.length];save();render()}
+function cycleStatus(id){const j=data.jobs.find(x=>x.id===id),s=['Nová','Domluvená','Hotová','Zaplacená'];if(!j)return;const i=s.indexOf(j.status||'Nová');j.status=s[(i+1)%s.length];save();render()}
+function editJobCosts(id){const j=data.jobs.find(x=>x.id===id);if(!j)return;const value=prompt('Zadej celkové náklady této zakázky v Kč:',String(Number(j.costs)||0));if(value===null)return;const amount=Number(value);if(!Number.isFinite(amount)||amount<0){alert('Zadej platnou částku 0 nebo více.');return}j.costs=Math.round(amount*100)/100;save();render()}
 function deleteJob(id){
   const j=data.jobs.find(x=>x.id===id); if(!j)return;
   if(!confirm(`Opravdu chcete smazat zakázku „${j.customer}“?\nTato akce je nevratná.`))return;
@@ -250,7 +265,7 @@ function renderCalendar(){
   $('calendarList').innerHTML=a.map(j=>`<div class="card job"><div class="row"><div><strong>${esc(j.date)} · ${esc(j.time||'—')}</strong><div>${esc(j.customer)}</div></div><b>${money(j.price)}</b></div></div>`).join('')||'<div class="empty">Kalendář je prázdný.</div>';
 }
 function renderFinance(){
-  const rev=data.jobs.filter(j=>j.status==='Zaplacená').reduce((a,j)=>a+j.price,0),cost=data.expenses.reduce((a,e)=>a+e.amount,0),avg=data.jobs.length?data.jobs.reduce((a,j)=>a+j.price,0)/data.jobs.length:0;
+  const rev=data.jobs.filter(j=>j.status==='Zaplacená').reduce((a,j)=>a+j.price,0),cost=data.expenses.reduce((a,e)=>a+e.amount,0)+data.jobs.reduce((a,j)=>a+(Number(j.costs)||0),0),avg=data.jobs.length?data.jobs.reduce((a,j)=>a+j.price,0)/data.jobs.length:0;
   $('finRevenue').textContent=money(rev);$('finCosts').textContent=money(cost);$('finProfit').textContent=money(rev-cost);$('finAvg').textContent=money(avg);
   let by={};data.jobs.forEach(j=>by[j.date]=(by[j.date]||0)+j.price);let vals=Object.entries(by).slice(-7);
   $('chart').innerHTML=vals.length?vals.map(([d,v])=>`<div style="margin:8px 0"><div class="row"><span>${d}</span><b>${money(v)}</b></div><div style="height:8px;background:#222;border-radius:99px;overflow:hidden"><div style="width:${Math.min(100,v/(Math.max(...vals.map(x=>x[1]))||1)*100)}%;height:100%;background:#e11"></div></div></div>`).join(''):'<span class="muted">Zatím nejsou data.</span>';
@@ -280,26 +295,50 @@ function renderEquipment(){
 }
 function setEquipment(i,v){data.equipment[i][1]=v;save();renderEquipment()}
 function renderOffers(){
-  $('offerJob').innerHTML=data.jobs.map(j=>`<option value="${j.id}">${esc(j.customer)} — ${esc(j.date)} — ${money(j.price)}</option>`).join('')||'<option>Nejsou zakázky</option>';
+  const r=calcResult(calcState.main);
+  $('offerCalcSummary').innerHTML=`<div class="line"><span>Aktuální cena z kalkulačky</span><b>${money(r.total)}</b></div>`;
+  $('offerList').innerHTML=data.offers.slice().sort((a,b)=>b.created-a.created).map(o=>`<div class="card job">
+    <div class="row"><div><strong>${esc(o.customer)}</strong><div class="small">${esc(o.date)} · platnost do ${esc(o.validUntil||'—')}</div></div><b>${money(o.price)}</b></div>
+    <div class="small" style="margin:8px 0">${esc(o.address||'Bez adresy')} · Stav: ${esc(o.status||'Čeká na odpověď')}</div>
+    ${o.note?`<div class="small">${esc(o.note)}</div>`:''}
+    <label>Stav nabídky<select onchange="setOfferStatus(${o.id},this.value)">${['Čeká na odpověď','Přijata','Odmítnuta','Vypršela'].map(st=>`<option ${o.status===st?'selected':''}>${st}</option>`).join('')}</select></label>
+    <div class="actions"><button class="btn" onclick="printOffer(${o.id})">Tisk / PDF</button>${o.status==='Přijata'&&!o.jobId?`<button class="btn green" onclick="convertOfferToJob(${o.id})">Převést na zakázku</button>`:''}<button class="btn secondary" onclick="copyOffer(${o.id})">Kopírovat text</button><button class="btn secondary danger" onclick="deleteOffer(${o.id})">Smazat</button></div>
+    ${o.jobId?'<div class="small">Převedeno na zakázku.</div>':''}
+  </div>`).join('')||'<div class="empty">Zatím nemáš uložené nabídky.</div>';
 }
-function offerTextFromCalc(){
-  const s=calcState.main,r=calcResult(s),lines=[];
-  const q=(n,label)=>{if(s[n]>0)lines.push(`${s[n]}× ${label}`)};
-  q('small','malé okno');q('medium','standardní okno');q('large','velké okno');q('balcony','balkonové dveře');q('shop','výloha');
-  q('frames','mytí rámů');q('sills','mytí parapetů');if(s.heavy)lines.push(`silné znečištění (+${Number(data.heavyPercent||30)} % z mytí oken)`);q('stickers','odstranění samolepek');q('glassdoors','čištění skleněných dveří');if(s.other)lines.push('jiné práce');if(s.transport)lines.push('doprava');
-  return `VINCERIUS\nCenová nabídka\n\n${lines.join('\n')||'Bez položek'}\n\nCelkem: ${money(r.total)}`;
+function offerDraft(){
+ const r=calcResult(calcState.main),s=calcState.main,lines=[];
+ const q=(n,label)=>{if(Number(s[n])>0)lines.push(`${s[n]} × ${label}`)};
+ q('small','malé okno');q('medium','standardní okno');q('large','velké okno');q('balcony','balkonové dveře');q('shop','výloha');q('frames','mytí rámů');q('sills','mytí parapetů');if(s.heavy)lines.push(`silné znečištění (+${Number(data.heavyPercent||30)} % z mytí oken)`);q('stickers','odstranění samolepek');q('glassdoors','čištění skleněných dveří');if(s.other)lines.push('jiné práce');if(s.transport)lines.push('doprava');if(s.discount)lines.push(`sleva ${s.discount} %`);
+ return {price:r.total,lines};
 }
-function copyCalcOffer(){
-  const text=offerTextFromCalc();
-  if(navigator.clipboard?.writeText) navigator.clipboard.writeText(text).then(()=>alert('Nabídka zkopírována.')).catch(()=>prompt('Zkopírujte nabídku:',text));
-  else prompt('Zkopírujte nabídku:',text);
+function offerText(o){return `DOMUS REGALIS\nCENOVÁ NABÍDKA\n\nZákazník: ${o.customer}\nTelefon: ${o.phone||'—'}\nAdresa: ${o.address||'—'}\nDatum vystavení: ${o.date}\nPlatnost do: ${o.validUntil}\n\nPoložky:\n${(o.lines||[]).join('\n')||'Služby dle domluvy'}\n\nCELKEM: ${money(o.price)}\n\nPoznámka: ${o.note||'—'}\n\nVincerius`}
+function saveOffer(){
+ const customer=$('offerCustomer').value.trim();if(!customer){alert('Vyplň zákazníka.');return}
+ const days=Math.max(1,Math.min(365,Number($('offerDays').value)||14)),d=new Date();d.setDate(d.getDate()+days);
+ const draft=offerDraft();if(draft.price<=0){if(!confirm('Cena nabídky je 0 Kč. Chceš ji přesto uložit?'))return}
+ const o={id:Date.now(),customer,phone:$('offerPhone').value.trim(),address:$('offerAddress').value.trim(),date:new Date().toLocaleDateString('cs-CZ'),validUntil:d.toLocaleDateString('cs-CZ'),days,price:draft.price,lines:draft.lines,note:$('offerNote').value.trim(),status:'Čeká na odpověď',created:Date.now(),jobId:null};
+ data.offers.push(o);save();renderOffers();alert('Nabídka uložena.');
 }
-function createOfferFromCalc(){copyCalcOffer();show('offers')}
-function makeOffer(){
-  const j=data.jobs.find(x=>x.id===$('offerJob').value);if(!j)return;
-  const days=Number($('offerDays').value)||14,w=window.open('','_blank');if(!w){alert('Prohlížeč zablokoval nové okno.');return}
-  w.document.write(`<html><head><title>Nabídka — Vincerius</title><style>body{font:16px Arial;max-width:700px;margin:50px auto}h1{color:#d11}hr{border:0;border-top:1px solid #ddd}button{padding:10px}</style></head><body><h1>VINCERIUS</h1><h2>Cenová nabídka</h2><p><b>Zákazník:</b> ${esc(j.customer)}<br><b>Adresa:</b> ${esc(j.address||'—')}<br><b>Datum:</b> ${esc(j.date)}</p><hr><h2>${money(j.price)}</h2><p>Nabídka platí ${days} dní od vystavení.</p><button onclick="print()">Tisk / Uložit jako PDF</button></body></html>`);w.document.close();
+function printOffer(id){const o=data.offers.find(x=>x.id===id);if(o)printOfferObject(o)}
+function printDraftOffer(){const c=$('offerCustomer').value.trim()||'—',d=new Date(),days=Math.max(1,Number($('offerDays').value)||14),end=new Date(d);end.setDate(end.getDate()+days);const x=offerDraft();printOfferObject({customer:c,phone:$('offerPhone').value.trim(),address:$('offerAddress').value.trim(),date:d.toLocaleDateString('cs-CZ'),validUntil:end.toLocaleDateString('cs-CZ'),price:x.price,lines:x.lines,note:$('offerNote').value.trim()})}
+function printOfferObject(o){
+ const w=window.open('','_blank');if(!w){alert('Prohlížeč zablokoval okno. Povol vyskakovací okna a zkus to znovu.');return}
+ const lines=(o.lines||[]).map(x=>`<li>${esc(x)}</li>`).join('');
+ w.document.write(`<!doctype html><html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cenová nabídka — Domus Regalis</title><style>body{font:16px Arial,sans-serif;max-width:760px;margin:36px auto;padding:0 22px;color:#111}h1{color:#c11;letter-spacing:2px}hr{border:0;border-top:1px solid #bbb;margin:22px 0}.total{font-size:25px;font-weight:bold}.muted{color:#555}.print{padding:10px 15px;font-size:16px}@media print{body{margin:0}.print{display:none}}</style></head><body><h1>DOMUS REGALIS</h1><h2>Cenová nabídka</h2><p><b>Zákazník:</b> ${esc(o.customer)}<br><b>Telefon:</b> ${esc(o.phone||'—')}<br><b>Adresa:</b> ${esc(o.address||'—')}<br><b>Vystaveno:</b> ${esc(o.date||'—')}<br><b>Platnost do:</b> ${esc(o.validUntil||'—')}</p><hr><h3>Rozsah služeb</h3><ul>${lines||'<li>Služby dle domluvy</li>'}</ul><p class="muted">${esc(o.note||'')}</p><hr><p class="total">Celkem: ${money(o.price)}</p><p class="muted">Děkujeme za poptávku.</p><button class="print" onclick="window.print()">Tisk / Uložit jako PDF</button><script>window.onload=()=>setTimeout(()=>window.print(),300)<\/script></body></html>`);w.document.close();
 }
+function setOfferStatus(id,status){const o=data.offers.find(x=>x.id===id);if(!o)return;o.status=status;save();renderOffers()}
+function convertOfferToJob(id){
+ const o=data.offers.find(x=>x.id===id);if(!o||o.jobId)return;
+ if(!confirm(`Převést nabídku pro ${o.customer} na zakázku?`))return;
+ const job={id:Date.now(),customer:o.customer,phone:o.phone||'',address:o.address||'',date:new Date().toISOString().slice(0,10),time:'',price:Number(o.price)||0,costs:0,status:'Nová',note:`Převedeno z cenové nabídky. ${o.note||''}`.trim(),created:new Date().toISOString(),offerId:o.id};
+ data.jobs.push(job);o.jobId=job.id;o.status='Přijata';save();render();alert('Nabídka převedena na zakázku.');
+}
+function copyOffer(id){const o=data.offers.find(x=>x.id===id);if(!o)return;const t=offerText(o);if(navigator.clipboard?.writeText)navigator.clipboard.writeText(t).then(()=>alert('Text nabídky zkopírován.')).catch(()=>prompt('Zkopíruj text nabídky:',t));else prompt('Zkopíruj text nabídky:',t)}
+function deleteOffer(id){const o=data.offers.find(x=>x.id===id);if(!o||!confirm(`Opravdu smazat nabídku pro „${o.customer}“?`))return;data.offers=data.offers.filter(x=>x.id!==id);save();renderOffers()}
+function offerTextFromCalc(){const x=offerDraft();return `DOMUS REGALIS\nCenová nabídka\n\n${x.lines.join('\n')||'Bez položek'}\n\nCelkem: ${money(x.price)}`}
+function copyCalcOffer(){const text=offerTextFromCalc();if(navigator.clipboard?.writeText)navigator.clipboard.writeText(text).then(()=>alert('Nabídka zkopírována.')).catch(()=>prompt('Zkopírujte nabídku:',text));else prompt('Zkopírujte nabídku:',text)}
+function createOfferFromCalc(){show('offers')}
 function renderPriceSettings(){
   const labels={small:'Malé okno',medium:'Standardní okno',large:'Velké okno',balcony:'Balkonové dveře',shop:'Výloha',frames:'Mytí rámů',sills:'Mytí parapetů',heavy:'Silné znečištění',stickers:'Odstranění samolepek',glassdoors:'Čištění skleněných dveří',other:'Jiné práce',transport:'Doprava'};
   $('priceSettings').innerHTML=Object.keys(labels).filter(k=>k!=='heavy').map(k=>`<label>${labels[k]} (${['frames','sills','stickers','glassdoors'].includes(k)?'za kus':'paušál'})<input data-price="${k}" type="number" min="0" step="1" value="${priceFor(k)}"></label>`).join('')+`<label>Silné znečištění (příplatek % z mytí oken)<input id="heavyPercent" type="number" min="0" max="100" step="1" value="${Number(data.heavyPercent||30)}"></label>`;
@@ -315,6 +354,6 @@ function savePriceSettings(){
 save();
 $('fDate').value=new Date().toISOString().slice(0,10);
 render();
-if('serviceWorker' in navigator){navigator.serviceWorker.register('vincerius-sw-v5-30.js',{updateViaCache:'none'}).catch(()=>{})}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('domus-regalis-sw-v8.js',{updateViaCache:'none'}).catch(()=>{})}
 </script>
 </body></html>
